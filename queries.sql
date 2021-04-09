@@ -1,5 +1,3 @@
--- TODO: create/populate database tables
-
 -- Query 1: Avg mood of songs in playlist
 SELECT spotify_id, title_char as title, artist_char AS artist, AVG(mood) as avg_mood
 FROM Playlist p
@@ -44,15 +42,45 @@ WITH DesiredSongs AS (
       FROM Songs s
       WHERE m.release_year >= 2000 AND m.release_year <= 2009
 ), AvgPopularityDecade AS (
-    SELECT 2000 as decade, AVG(popularity) as avg_popularity
-    FROM Songs s
+    SELECT AVG(popularity) as avg_popularity
+    FROM DesiredSongs
 )
 SELECT *
 FROM DesiredSongs ds, AvgPopularityDecade apd
 WHERE ds.popularity > apd.popularity
 
 
--- Query 8: do something with artists/recommendations
-WITH AvgMood AS (
-
+-- Query 8: only select songs whose mood/popularity > avg within your saved playlists
+WITH AvgMoodPopularity AS (
+  SELECT AVG(s.mood) as avg_mood, AVG(s.popularity) as avg_popularity
+  FROM SavedSongs ss
+  WHERE ss.email = 'akshaysharma2019'
+  JOIN Songs s
+  ON ss.song_id = s.spotify_id
+  JOIN Playlist p
+  ON ss.email = p.user_email AND p.song_id = s.spotify_id
 )
+SELECT spotify_id, title_char AS title, artist_char AS artist
+FROM Songs s, AvgMoodPopularity amp
+WHERE s.mood > amp.mood AND s.popularity > amp.popularity
+ORDER BY title_char
+LIMIT 10
+
+-- Query 9: avg tempo of saved songs from people born in a particular decade
+WITH PeopleInDecade AS (
+    SELECT email, spotify_id, dob as birth_date
+    FROM Users
+    WHERE dob >= 2000 AND dob <= 2009
+), PeopleInDecadeSavedSongs AS (
+    SELECT u.email, s.spotify_id, artist_char as artist, title_char as title, tempo, mood 
+    FROM Users u
+    JOIN SavedSongs ss
+    ON ss.email = u.email
+    JOIN Songs s
+    ON ss.song_id = s.spotify_id
+)
+SELECT u.email, AVG(tempo) as avg_tempo, AVG(mood) as avg_mood
+FROM PeopleInDecadeSavedSongs
+GROUP BY u.email
+
+-- Query 10: ?
