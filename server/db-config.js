@@ -1,8 +1,8 @@
 // Private, for accessing database (DO NOT COMMIT TO GIT)
 module.exports = {
-  host: "fling.seas.upenn.edu",
+  host: "3.238.131.147",
   port: "3306",
-  user: "",
-  password: "",
-  database: ""
+  user: "test_remote",
+  password: "CIS550",
+  database: "project_data"
 };

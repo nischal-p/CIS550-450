@@ -4,9 +4,9 @@ import {
 	Route,
 	Switch
 } from 'react-router-dom';
-import Dashboard from './Dashboard';
-import Recommendations from './Recommendations';
-import BestMovies from './BestMovies';
+import Login from '../components/login/Login'
+import Signup from '../components/signup/Signup'
+
 
 export default class App extends React.Component {
 
@@ -18,20 +18,14 @@ export default class App extends React.Component {
 						<Route
 							exact
 							path="/"
-							render={() => <Dashboard />}
+							render={() => <Login />}
 						/>
-						<Route
+					</Switch>
+					<Switch>
+					<Route
 							exact
-							path="/dashboard"
-							render={() => <Dashboard />}
-						/>
-						<Route
-							path="/recommendations"
-							render={() => <Recommendations />}
-						/>
-						<Route
-							path="/bestmovies"
-							render={() => <BestMovies />}
+							path="/signup"
+							render={() => <Signup />}
 						/>
 					</Switch>
 				</Router>
