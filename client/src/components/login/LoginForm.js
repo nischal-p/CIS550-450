@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
+
+import { useHistory } from "react-router-dom";
 
 
 const validate = values => {
@@ -11,20 +13,19 @@ const validate = values => {
     }
     if (!values.password) {
       errors.password = 'Password is required';
-    } else if (values.password.length < 6) {
-      errors.password = 'Password needs to be 6 characters or more';
     }
+
     return errors;
   }
 
-const LoginForm = ({ submitForm }) => {
+const LoginForm = () => {
+  const history = useHistory();
+
   const [values, setValues] = useState({
     email: '',
-    password: '',
-    password2: ''
+    password: ''
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -36,19 +37,18 @@ const LoginForm = ({ submitForm }) => {
 
   const handleSubmit = e => {
     e.preventDefault();
-
     setErrors(validate(values));
-    setIsSubmitting(true);
-  };
 
-  useEffect(
-    () => {
-      if (Object.keys(errors).length === 0 && isSubmitting) {
-        submitForm();
-      }
-    },
-    [errors]
-  );
+    // fetch content 
+    fetch('http://localhost:8081/check_login', {
+      method : 'post',
+      headers: {'Content-Type':'application/json'},
+      body : JSON.stringify(values)
+    }).then((response) => response.json())
+      .then(responseJson => {
+        console.log(responseJson)
+      })
+  };
 
   return (
     <div className='form-content-right'>
