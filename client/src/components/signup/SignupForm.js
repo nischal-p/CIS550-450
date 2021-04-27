@@ -1,9 +1,10 @@
 import React from 'react';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
+
+import { useHistory } from 'react-router-dom'
 
 import '../../style/Form.css';
 
-// TODO: finish with making call to fetch
 const validate = values => {
     let errors = {};
   
@@ -26,14 +27,15 @@ const validate = values => {
     return errors;
   }
 
-const SignupForm = ({ submitForm }) => {
+const SignupForm = () => {
+  const history = useHistory()
+
   const [values, setValues] = useState({
     email: '',
     password: '',
     password2: ''
   });
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleChange = e => {
     const { name, value } = e.target;
@@ -47,17 +49,22 @@ const SignupForm = ({ submitForm }) => {
     e.preventDefault();
 
     setErrors(validate(values));
-    setIsSubmitting(true);
-  };
 
-  useEffect(
-    () => {
-      if (Object.keys(errors).length === 0 && isSubmitting) {
-        submitForm();
-      }
-    },
-    [errors]
-  );
+    // fetch (post to database the signup values) 
+    fetch('http://localhost:8081/create_user', {
+      method : 'post',
+      headers: {'Content-Type':'application/json'},
+      body : JSON.stringify(values)
+    }).then((response) => response.json())
+      .then(responseJson => {
+        if (responseJson) {
+          history.push('/home')
+        } else {
+          // TODO: add some error object saying that the password is incorrect
+          history.push('/signup')
+        }
+      })
+  };
 
   return (
     <div className='form-content-right'>

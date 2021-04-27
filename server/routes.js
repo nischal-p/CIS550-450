@@ -14,26 +14,63 @@ var crypto = require('crypto');
 /* -------------------------------------------------- */
 
 
-// TODO: implement checkUser for login
 const checkLogin = (req, res) => {
     // grab username, password from the frontend form
-    var username = req.body.username;
+    var username = req.body.email;
     var password = req.body.password;
 
-    // query database to check if user already exists
-    const query = `SELECT * FROM Users WHERE email = '${username}' AND password = '${password}'`
+    // compute hashed password
+    var hashed_password = crypto.createHash("sha256").update(password).digest("hex");
 
-    connection.query(query, (rows) => {
-        console.log(rows)
-        if (rows.length == 1) res.send(true)
-        else res.send(false)
+    // query database to check if user already exists
+    const query = `SELECT * FROM Users WHERE email = '${username}' AND password = '${hashed_password}'`
+
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err)
+        else {
+            console.log(rows)
+            if (rows.length == 1) res.send(true)
+            else res.send(false)
+        }
     })
 }
 
 
 // TODO: implement signup
 const userSignup = (req, res) => {
-    
+    // grab username, password from frontend form
+    var username = req.body.email;
+    var password = req.body.password
+
+    // hash password
+    var hashed_password = crypto.createHash("sha256").update(password).digest("hex");
+	console.log("hashed Password: ", hashed_password);
+
+    // make call to check if user already exists
+    const query = `SELECT * FROM Users WHERE email = '${username}' AND password = '${hashed_password}'`
+
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err)
+        else {
+            console.log(rows)
+            console.log("check user called!")
+
+            if (rows.length == 0) {
+                // insert into database with username, hashed password
+                const insert_query = `INSERT INTO Users (email, password) VALUES ('${username}', '${hashed_password}')`
+                connection.query(insert_query, (err, rows, fields) => {
+                    if (err) throw err
+                    else {
+                        console.log("Success! User with email " + username  + " inserted!")
+
+                        res.send(true)
+                    }
+                })
+            } else {
+                console.log("User already exists")
+            }
+        }
+    })
 }
 
 //Account Page based on Session ID (TODO: needs to be generated on login)

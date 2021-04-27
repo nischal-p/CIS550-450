@@ -16,6 +16,9 @@ app.use(bodyParser.urlencoded({extended: false}));
 // input routes for application
 app.post('/check_login', routes.check_login)
 
+// routes for creating user
+app.post('/create_user', routes.user_signup)
+
 //Acount Page
 app.get('/account/:sessionID', routes.getAccountPage);
 
