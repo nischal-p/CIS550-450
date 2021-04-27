@@ -13,7 +13,8 @@ app.use(bodyParser.urlencoded({extended: false}));
 /* ------------------- Route handler registration ----------------- */
 /* ---------------------------------------------------------------- */
 
-// TODO: input routes for application
+// input routes for application
+app.post('/check_login', routes.check_login)
 
 
 app.listen(8081, () => {
