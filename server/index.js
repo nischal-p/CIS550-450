@@ -15,6 +15,12 @@ app.use(bodyParser.urlencoded({extended: false}));
 
 // TODO: input routes for application
 
+//Acount Page
+app.get('/account/:sessionID', routes.getAccountPage);
+
+
+//Search Page
+app.get('/searchPage/:song_title', routes.getSongFromDB);
 
 app.listen(8081, () => {
 	console.log(`Server listening on PORT 8081`);

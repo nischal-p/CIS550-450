@@ -1,0 +1,17 @@
+
+
+.header-container, .results-container {
+  display: flex;
+  flex-flow: column wrap;
+}
+
+.header-container .headers, .results-container .searchResults {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  height: 40px;
+}
+
+.searchResults .title, .searchResults .artist, .searchResults .mood, .searchResults .release_year, .searchResults .popularity, .headers .header {
+  flex: 0 0 20%;
+}
