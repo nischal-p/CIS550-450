@@ -28,16 +28,16 @@ export default class PageNavbar extends React.Component {
 
 	render() {
 		return (
-			<div className="PageNavbar">
-				<nav className="navbar navbar-expand-lg navbar-light bg-light">
-			      <span className="navbar-brand center">ExploreMusic</span>
+			<header className="PageNavbar">
+				<nav className="navbar navbar-expand-lg shadow navbar-light bg-light">
+			      <span className="navbar-brand center"><h3 className="brand-on-navbar">ExploreMusic</h3></span>
 			      <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
 			        <div className="navbar-nav">
 			        	{this.state.navDivs}
 			        </div>
 			      </div>
 			    </nav>
-			</div>
+			</header>
     );
 	};
 };

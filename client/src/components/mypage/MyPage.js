@@ -43,11 +43,16 @@ export default class BestMovies extends React.Component {
             )
             .then(
                 (rows) => {
+                    rows = Array.from(rows)
                     console.log(rows);
-                    rows.forEach((element) => {
-                        element["xlabel"] = `${element["mood_bucket"]} - ${
-                            element["mood_bucket"] + 1
-                        }`;
+                    console.log(rows.type)
+                    rows.forEach(element => {
+                        if (element["mood_bucket"] != 0) {
+                            element["xlabel"] = `${element["mood_bucket"] - 1} - ${element["mood_bucket"]}`;
+                        } else {
+                            element["xlabel"] = ""
+                        }
+                        
                     });
                     this.setState({
                         moodDistroData: rows,
@@ -70,19 +75,26 @@ export default class BestMovies extends React.Component {
         return (
             <div className="MyPage">
                 <PageNavbar active="mypage" />
-                <div>
-                    <h5>Welcome user: aoconnell@pfeffer.com</h5>
-
+                <div className="container pt-3">
+                    <h5>Welcome aoconnell@pfeffer.com</h5>
+                    <hr/>
+                    <p>Distribution of Songs per different mood buckets (0 is least happy/upbeat, 10 is most happy/upbeat)</p>
                     <ResponsiveContainer width="80%" height={400}>
                         <AreaChart data={this.state.moodDistroData}>
-                            <Area dataKey="num_songs" />
-                            <XAxis dataKey="mood_bucket" />
-
+                        <defs>
+                            <linearGradient id="colorUv" x1="1" y1="1" x2="0" y2="0">
+                                <stop offset="5%" stopColor="#84c8b1" stopOpacity={0.7}/>
+                                <stop offset="95%" stopColor="#8884d8" stopOpacity={0.7}/>
+                            </linearGradient>
+                        </defs>
+                            <Area dataKey="num_songs"  fill="url(#colorUv)"/>
+                            <XAxis type="category" dataKey="xlabel" />
                             <YAxis dataKey="num_songs" />
                             <CartesianGrid stroke="#ccc" />
                             <Tooltip />
                         </AreaChart>
                     </ResponsiveContainer>
+                    <hr/>
                 </div>
             </div>
         );
