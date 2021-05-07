@@ -124,3 +124,158 @@ WITH DesiredUsersPlaylistSongs AS (
 )
 SELECT * FROM DesiredSongs
 
+
+
+
+
+-- Actual queries being used ---
+
+/* genre recommendation */
+WITH user_saved_songs_genres AS (
+	SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
+	FROM SavedSongs ss
+	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+	JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+	JOIN Songs s ON s.spotify_id = ats.song_id 
+	WHERE ss.email = "aoconnell@pfeffer.com"
+),
+songs_per_top_mood_bucket AS (
+	SELECT ussg0.mood_bucket, COUNT(ussg0.song_id) AS num_songs
+	FROM user_saved_songs_genres ussg0
+	GROUP BY ussg0.mood_bucket
+	ORDER BY num_songs DESC 
+	LIMIT 2
+),
+average_saved_songs_popularity AS (
+	SELECT AVG(popularity) AS avg_popularity
+	FROM user_saved_songs_genres
+),
+unknown_genres AS (
+	SELECT DISTINCT ag2.genre 
+	FROM ArtistsGenres ag2 
+	WHERE ag2.genre NOT IN (
+		SELECT DISTINCT ussg.genre 
+		FROM user_saved_songs_genres ussg
+	)
+),
+unknown_genre_mood_range AS (
+	SELECT ug.genre, CEIL(AVG(s2.acousticness) * 10) AS mood_bucket, COUNT(s2.spotify_id) AS num_songs, AVG(s2.popularity) AS genre_popularity 
+	FROM ArtistsGenres ag3 
+	JOIN unknown_genres ug ON ug.genre = ag3.genre 
+	JOIN ArtistsSongs as2 ON as2.artist_id = ag3.artist_id 
+	JOIN Songs s2 ON s2.spotify_id = as2.song_id
+	GROUP BY ag3.genre 
+)
+SELECT ugmr.genre, ugmr.mood_bucket, ugmr.num_songs 
+FROM unknown_genre_mood_range ugmr
+JOIN average_saved_songs_popularity assp
+JOIN songs_per_top_mood_bucket sptmb ON sptmb.mood_bucket = ugmr.mood_bucket
+WHERE ugmr.genre_popularity >= assp.avg_popularity
+ORDER BY num_songs DESC
+LIMIT 10;
+
+/* artist recommendation unoptimized (based on artists user hasn't listened to) */
+WITH top_genres AS (
+	SELECT ag.genre, count(ss.song_id) AS savedsongs_in_genre
+	FROM SavedSongs ss 
+	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+	JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+	WHERE ss.email = "aoconnell@pfeffer.com"
+	GROUP BY ag.genre 
+	ORDER BY savedsongs_in_genre DESC 
+	LIMIT 20
+),
+unknown_artists AS (
+	SELECT a.artist_id, a.name
+	FROM Artists a
+	WHERE a.artist_id NOT IN (
+		SELECT ats2.artist_id FROM ArtistsSongs ats2
+		JOIN SavedSongs ss2 ON ss2.song_id = ats2.song_id 
+		WHERE ss2.email = "aoconnell@pfeffer.com"
+	)
+),
+unknown_artists_in_top_genres AS (
+	SELECT uka.artist_id, uka.name
+	FROM ArtistsGenres ag2 
+	JOIN top_genres tg ON tg.genre = ag2.genre
+	JOIN unknown_artists uka ON uka.artist_id = ag2.artist_id
+)
+SELECT uatg.artist_id, uatg.name, AVG(s.popularity) AS artist_popularity 
+FROM unknown_artists_in_top_genres uatg
+JOIN ArtistsSongs ats3 ON ats3.artist_id = uatg.artist_id
+JOIN Songs s ON s.spotify_id = ats3.song_id 
+GROUP BY uatg.artist_id, uatg.name
+ORDER BY artist_popularity DESC 
+LIMIT 20;
+
+
+/* artist recommendation: optimized (based on artists user hasn't listened to) */
+WITH savedsongs_genre_artist AS (
+	SELECT ss.song_id, ag.genre, ats.artist_id 
+	FROM SavedSongs ss 
+	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+	JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+	WHERE ss.email = "aoconnell@pfeffer.com"
+),
+top_genres AS (
+	SELECT genre, COUNT(*) AS songs_in_genre
+	FROM savedsongs_genre_artist sga
+	GROUP BY sga.genre
+	ORDER BY songs_in_genre DESC 
+	LIMIT 20
+),
+unknown_artists AS (
+	SELECT a.artist_id, a.name
+	FROM Artists a
+	WHERE a.artist_id NOT IN (
+		SELECT DISTINCT artist_id 
+		FROM savedsongs_genre_artist sga2
+	)
+),
+unknown_artists_in_top_genres AS (
+	SELECT uka.artist_id, uka.name
+	FROM ArtistsGenres ag2 
+	JOIN top_genres tg ON tg.genre = ag2.genre
+	JOIN unknown_artists uka ON uka.artist_id = ag2.artist_id
+)
+SELECT uatg.artist_id, uatg.name, AVG(s.popularity) AS artist_popularity 
+FROM unknown_artists_in_top_genres uatg
+JOIN ArtistsSongs ats3 ON ats3.artist_id = uatg.artist_id
+JOIN Songs s ON s.spotify_id = ats3.song_id 
+GROUP BY uatg.artist_id, uatg.name
+ORDER BY artist_popularity DESC 
+LIMIT 20;
+
+
+/* distribution of moods of saved songs */
+SELECT count(ss.song_id), CEIL((mm.mood * 10)) AS mood_bucket
+FROM SavedSongs ss 
+JOIN Songs s ON s.spotify_id = ss.song_id 
+JOIN MoodMetrics mm ON mm.song_id = ss.song_id 
+WHERE ss.email = "aoconnell@pfeffer.com"
+GROUP BY mood_bucket
+ORDER BY mood_bucket ;
+
+
+/* distribution of dancebility of saved songs */
+SELECT count(ss.song_id) AS num_songs, CEIL((s.danceability * 10)) AS dancebility_bucket
+FROM SavedSongs ss 
+JOIN Songs s ON s.spotify_id = ss.song_id 
+WHERE ss.email = "aoconnell@pfeffer.com"
+GROUP BY dancebility_bucket
+ORDER BY dancebility_bucket;
+
+
+/* most listened to artist */
+WITH artistid_songcount AS (
+	SELECT ats.artist_id , count(ss.song_id) AS num_saved_songs
+	FROM SavedSongs ss 
+	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+	WHERE ss.email = "aoconnell@pfeffer.com"
+	GROUP BY ats.artist_id 
+)
+SELECT a.name, num_saved_songs 
+FROM artistid_songcount atsng
+JOIN Artists a ON a.artist_id = atsng.artist_id
+ORDER BY num_saved_songs DESC
+LIMIT 10;
