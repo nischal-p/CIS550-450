@@ -23,7 +23,7 @@ const checkLogin = (req, res) => {
     var hashed_password = crypto.createHash("sha256").update(password).digest("hex");
 
     // query database to check if user already exists
-    const query = `SELECT * FROM Users WHERE email = '${username}' AND password = '${hashed_password}'`
+    const query = `SELECT * FROM Users WHERE email = '${username}' AND (password = '${hashed_password}' OR password = '${password}')`
 
     connection.query(query, (err, rows, fields) => {
         if (err) console.log(err)
