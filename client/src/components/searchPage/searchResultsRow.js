@@ -1,17 +1,35 @@
 import React from 'react';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import '../../style/searchResultsRow.css'
 
-export default class SearchResultsRow extends React.Component {
+const convertToTime = ms_time => {
+	var minutes = Math.floor(ms_time / 60000);
+	var seconds = ((ms_time % 60000) / 1000).toFixed(0);
+  	return minutes + ":" + (seconds < 10 ? '0' : '') + seconds;
+}
 
-	render() {
-		return (
-			<div className="searchResults">
-				<div className="title">{this.props.title}</div>
-				<div className="artist">{this.props.artist}</div>
-				<div className="mood">{this.props.mood}</div>
-				<div className="release_year">{this.props.release_year}</div>
-                <div className="popularity">{this.props.popularity}</div>
+const SearchResultsRow = ( props ) => {
+	return (
+		<div>
+			<div className="parent-link">
+				<div className="song-row">
+					<div className="album-art">
+						<a href={props.link} target="_blank">
+							<img className="album-image" src={props.img}/>
+						</a>
+					</div>
+					<div className="song-caption">
+						<b className="song-title">{props.title}</b>
+						<ul aria-label="Artist" class="song-artists">
+							{props.artist}
+						</ul>
+					</div>
+					<div className="song-duration">
+						<span>{convertToTime(props.duration)}</span>
+					</div>
+				</div>
 			</div>
-		);
-	};
-};
+		</div>
+	)
+}
+
+export default SearchResultsRow;

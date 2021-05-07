@@ -47,7 +47,20 @@ const LoginForm = () => {
     }).then((response) => response.json())
       .then(responseJson => {
         if (responseJson) {
+          // do spotify authentication
+          fetch('http://localhost:8081/spotify_login', {
+            method : 'get', 
+            headers : {'Content-Type' : 'application/json'}
+          }).then((ApiResponse) => ApiResponse.json())
+          .then(res => {
+            localStorage.setItem('access_token', res.token)
+          })
+
+          // put into local storage (username)
+          localStorage.setItem('username', values.email)
+
           history.push('/home')
+
         } else {
           // TODO: add some error object saying that the password is incorrect
           history.push('/signup')

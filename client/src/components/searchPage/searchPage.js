@@ -1,94 +1,79 @@
-import React from 'react';
+import React, { useState } from 'react';
 import SearchResultsRow from './searchResultsRow';
 import '../../style/searchPage.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 
-export default class SearchPage extends React.Component {
-	constructor(props) {
-		super(props);
+const SearchPage = () => {
+	
+	const [artistOrTrack, setArtistOrTrack] = useState("Search by Track")
 
-		// State maintained by this React component is the selected movie name, and the list of recommended movies.
-		this.state = {
-			songName: "",
-			searchResults: []
-		};
+    const [searchParameter, setSearchParameter] = useState('');
 
-		this.handleSongNameChange = this.handleSongNameChange.bind(this);
-		this.submitSong = this.submitSong.bind(this);
-	};
+	// state for results 
+	const [results, setResults] = useState([])
 
-	handleSongNameChange(e) {
-		this.setState({
-			songName: e.target.value
+    const handleChange = event => {
+        setSearchParameter(event.target.value)
+    }
 
-		});
+	const handleSubmit = event => {
+		event.preventDefault();
 
-	};
+		fetch('http://localhost:8081/search/' + searchParameter, {
+			method : 'get', 
+			headers : {'Content-Type':'application/json'}
+		}).then((response) => response.json())
+		.then(res => {
+			setResults(res)
 
-	// Hint: Name of movie submitted is contained in `this.state.movieName`.
-	submitSong() {
-        // Send an HTTP request to the server.
-        console.log(this.state.songName);
-        fetch("http://localhost:8081/searchPage/" + this.state.songName,
-        {
-          method: 'GET' // The type of HTTP request.
-        }).then(res => {
-          // Convert the response data to a JSON.
-          return res.json();
-        }, err => {
-          // Print the error if there is one.
-          console.log(err);
-      }).then(resultList => {
-          if (!resultList) return;
-          console.log(resultList);
-          const songDivs = resultList.map((songObj, i) =>
-            <SearchResultsRow
-              title={songObj.title}
-              artist={songObj.artist}
-              mood={songObj.mood}
-              release_year={songObj.release_year}
-              popularity={songObj.popularity}
-            />
-          );
-
-          this.setState({
-            searchResults: songDivs
-          });
-
-        }, err => {
-          // Print the error if there is one.
-          console.log(err);
-        });
-	};
+			console.log(res)
+		})
+	}
 
 
-	render() {
-		return (
-			<div className="Search Page">
-				<div className="container SearchResults-container">
-					<div className="jumbotron">
-						<div className="h5">Search</div>
-						<br></br>
-						<div className="input-container">
-							<input type='text' placeholder="Enter Song Name" value={this.state.songName} onChange={this.handleSongNameChange} id="songName" className="song-input"/>
-							<button id="submitSongBtn" className="submit-btn" onClick={this.submitSong}>Submit</button>
+	return (
+		<div className="search-page">
+			<div className="container SearchResults-container">
+				<div>Navbar</div>
+				<div>
+					<h1 class="search-text">Search for your favorite song. </h1>
+					<form className='search-bar' onSubmit={handleSubmit}>
+						<input className="search-input" 
+						placeholder={artistOrTrack} 
+						onChange={handleChange}/> 
+						<div class="artists-tracks">
+							<label class="checkbox-label">
+								<span>Tracks</span>
+								<div class="switch-box">
+									<input type="checkbox" />
+									<span class="checkbox-span"></span>
+								</div>
+								<span>Artists</span>
+							</label>
 						</div>
-						<div className="header-container">
-							<div className="h6">Our best results ...</div>
-							<div className="headers">
-								<div className="header"><strong>Title</strong></div>
-								<div className="header"><strong>Artist</strong></div>
-								<div className="header"><strong>Mood</strong></div>
-								<div className="header"><strong>Release Year</strong></div>
-                                <div className="header"><strong>Popularity</strong></div>
+					</form>
+					<div className="results-container" id="results">
+						<div className="results-title">
+							<h3>Tracklist</h3>
+							<div class="total-tracks">
+								<span>{results.length} Tracks</span>
 							</div>
 						</div>
-						<div className="results-container" id="results">
-							{this.state.searchResults}
-						</div>
+						{results.map((obj, idx) => {
+							return <SearchResultsRow 
+							key={idx} 
+							title={obj.song_name} 
+							link={obj.link}
+							artist={obj.artist_name}
+							img={obj.img_src}
+							duration={obj.duration}
+							/>
+						})}
 					</div>
 				</div>
 			</div>
-		);
-	};
-};
+		</div>
+	);
+}
+
+
+export default SearchPage;

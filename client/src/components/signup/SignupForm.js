@@ -58,7 +58,7 @@ const SignupForm = () => {
     }).then((response) => response.json())
       .then(responseJson => {
         if (responseJson) {
-          history.push('/home')
+          history.push('/')
         } else {
           // TODO: add some error object saying that the password is incorrect
           history.push('/signup')

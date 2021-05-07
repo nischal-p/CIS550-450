@@ -1,5 +1,6 @@
 const config = require('./db-config.js')
 const mysql = require('mysql')
+var request = require('request')
 
 config.connectionLimit = 10
 const connection = mysql.createPool(config)
@@ -36,14 +37,13 @@ const checkLogin = (req, res) => {
 }
 
 
-// TODO: implement signup
 const userSignup = (req, res) => {
     // grab username, password from frontend form
     var username = req.body.email;
     var password = req.body.password
 
     // hash password
-    var hashed_password = crypto.createHash("sha256").update(password).digest("hex");
+  var hashed_password = crypto.createHash("sha256").update(password).digest("hex");
 	console.log("hashed Password: ", hashed_password);
 
     // make call to check if user already exists
@@ -85,22 +85,86 @@ const getAccountPage = (req, res) => {
     });
 };
 
-//Search Page based on keyword)
 const getSongFromDB = (req, res) => {
+  const song_name = req.params.song_title
 
-    const query = `
-    SELECT s.title, s.artist, s.mood, s.release_year, s.popularity
-    FROM Songs AS s
-    WHERE s.title LIKE "`+ req.params.song_title + `"
-    LIMIT 10;
-    `;
+  const query = `
+  SELECT s.title, s.spotify_id, a.name, s.explicit
+  FROM Songs s
+  JOIN ArtistsSongs a2
+  ON s.spotify_id = a2.song_id
+  JOIN Artists a
+  ON a2.artist_id = a.artist_id
+  WHERE s.title LIKE '${song_name}'
+  LIMIT 10
+  `;
 
-    console.log("Sent Query with: " + req.params.song_title);
-    connection.query(query, (err, rows, fields) => {
-      if (err) console.log(err);
-      else {console.log("Got Response:" + rows); res.json(rows);}
-    });
+  // query database for song with song_name + attributes
+  console.log("Sent Query with: " + song_name);
+  connection.query(query, (err, rows, fields) => {
+    if (err) console.log(err);
+    else {
+      console.log("Got Response:" + JSON.stringify(rows)); 
+
+      // query spotify API for songs
+      var client_id = '8eab0cca59954ff8b78151cbc3b7c2ea';
+      var client_secret = 'a2119aead89a4308876d6385ee0a5263';
+
+      // your application requests authorization from spotify
+      var authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+          Authorization:
+            'Basic ' +
+            new Buffer(client_id + ':' + client_secret).toString('base64')
+        },
+        form: {
+          grant_type: 'client_credentials'
+        },
+        json: true
+      };
+
+      request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) { 
+          
+
+          // instantiate result array
+          var result = []
+          for (var i = 0; i < rows.length; i++) {
+
+            // query spotify api with target id
+            var options = {
+              url: 'https://api.spotify.com/v1/tracks/' + rows[i].spotify_id, 
+              headers : {'Authorization' : 'Bearer ' + body.access_token},
+              json : true
+            }
+
+            // assemble result array to pass to frontend component
+            request.get(options, function(err, response, body) {
+               console.log(body)
+               result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
+               img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
+               link : body['external_urls']['spotify']})
+
+               // pass final result to frontend
+               if (result.length == rows.length) {
+                 res.json(result)
+               }
+            })
+          }
+        }
+      });
+    }
+  });
 };
+
+const getSongBasedOnArtist = (req, res) => {
+  const artist_name = req.params.artist_name;
+
+  // TODO: input query 
+
+
+}
 
 
 
@@ -108,5 +172,6 @@ module.exports = {
     check_login : checkLogin,
     user_signup : userSignup,
     getAccountPage : getAccountPage,
-    getSongFromDB : getSongFromDB
+    getSongFromDB : getSongFromDB,
+    get_song_based_on_artist : getSongBasedOnArtist
 }

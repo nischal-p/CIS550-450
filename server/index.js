@@ -24,7 +24,9 @@ app.get('/account/:sessionID', routes.getAccountPage);
 
 
 //Search Page
-app.get('/searchPage/:song_title', routes.getSongFromDB);
+app.get('/search/:song_title', routes.getSongFromDB);
+
+app.get('/search/artist/:artist_name', routes.get_song_based_on_artist)
 
 app.listen(8081, () => {
 	console.log(`Server listening on PORT 8081`);
