@@ -6,3 +6,10 @@ body {
     font-weight: 400;
     background-color: #f9fbfd;
 }
+
+.movies-container {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    height: 40px;
+}

@@ -1,18 +1,22 @@
-import React from 'react'
+import React from "react";
 
-import LoginForm from './LoginForm'
+import LoginForm from "./LoginForm";
 
 function Login() {
-  return (
-    <>
-      <div className='form-container'>
-        <div className='form-content-left'>
-         <img className="form-img" src="https://source.unsplash.com/cv4bk-aedJE" alt=""/>
-        </div>
-        <LoginForm />
-      </div>
-    </>
-  );
+    return (
+        <>
+            <div className="form-container">
+                <div className="form-content-left">
+                    <img
+                        className="form-img"
+                        src="https://source.unsplash.com/cv4bk-aedJE"
+                        alt=""
+                    />
+                </div>
+                <LoginForm />
+            </div>
+        </>
+    );
 }
 
 export default Login;
