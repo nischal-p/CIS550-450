@@ -28,6 +28,9 @@ app.get("/searchPage/:song_title", routes.getSongFromDB);
 //Search Page
 app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
 
+//Search Page
+app.get("/userDancebilityDistro/:email", routes.getUserDanceabilityDistro);
+
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);
 });

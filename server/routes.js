@@ -137,10 +137,58 @@ const getUserMoodDistro = (req, res) => {
     });
 };
 
+// Get the danceibilty distribution of songs in user's saved songs
+const getUserDanceabilityDistro = (req, res) => {
+    const user_email = req.params.email;
+
+    const query = `
+    SELECT count(ss.song_id) as num_songs, CEIL((s.danceability * 10)) AS dancebility_bucket
+    FROM SavedSongs ss 
+    JOIN Songs s ON s.spotify_id = ss.song_id 
+    WHERE ss.email = "${user_email}"
+    GROUP BY dancebility_bucket
+    ORDER BY dancebility_bucket ;
+    `;
+
+    console.log("User Dancebility Query with: " + user_email);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+// Get the danceibilty distribution of songs in user's saved songs
+const getUserAcousticnessDistro = (req, res) => {
+    const user_email = req.params.email;
+
+    const query = `
+    SELECT count(ss.song_id) as num_songs, CEIL((s.acousticness * 10)) AS acousticness_bucket
+    FROM SavedSongs ss 
+    JOIN Songs s ON s.spotify_id = ss.song_id 
+    WHERE ss.email = "${user_email}"
+    GROUP BY acousticness_bucket
+    ORDER BY acousticness_bucket ;
+    `;
+
+    console.log("User Dancebility Query with: " + user_email);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
 module.exports = {
     check_login: checkLogin,
     user_signup: userSignup,
     getAccountPage: getAccountPage,
     getSongFromDB: getSongFromDB,
     getUserMoodDistro: getUserMoodDistro,
+    getUserDanceabilityDistro: getUserDanceabilityDistro,
+    getUserAcousticnessDistro: getUserAcousticnessDistro,
 };
