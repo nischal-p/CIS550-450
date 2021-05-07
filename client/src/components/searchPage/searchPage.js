@@ -15,18 +15,41 @@ const SearchPage = () => {
         setSearchParameter(event.target.value)
     }
 
+	const onCheck = () => {
+		if (artistOrTrack == "Search by Track") {
+			setArtistOrTrack('Search by Artist')
+		} else {
+			setArtistOrTrack('Search by Track')
+		}
+	}
+
 	const handleSubmit = event => {
 		event.preventDefault();
 
-		fetch('http://localhost:8081/search/' + searchParameter, {
-			method : 'get', 
-			headers : {'Content-Type':'application/json'}
-		}).then((response) => response.json())
-		.then(res => {
-			setResults(res)
+		// check which parameter is selected
+		if (artistOrTrack == "Search by Track") {
+			fetch('http://localhost:8081/search/' + searchParameter, {
+				method : 'get', 
+				headers : {'Content-Type':'application/json'}
+			}).then((response) => response.json())
+			.then(res => {
+				setResults(res)
 
-			console.log(res)
-		})
+				console.log(res)
+			})
+		}
+		else {
+			fetch('http://localhost:8081/search/artist/' + searchParameter, {
+				method : 'get', 
+				headers : {'Content-Type':'application/json'}
+			}).then((response) => response.json())
+			.then(res => {
+				setResults(res)
+
+				console.log(res)
+			})
+		}
+
 	}
 
 
@@ -43,10 +66,10 @@ const SearchPage = () => {
 						<div class="artists-tracks">
 							<label class="checkbox-label">
 								<span>Tracks</span>
-								<div class="switch-box">
-									<input type="checkbox" />
-									<span class="checkbox-span"></span>
-								</div>
+								<label className="switch">
+									<input type="checkbox" onChange={onCheck}/>
+									<span class="slider round"></span>
+								</label>
 								<span>Artists</span>
 							</label>
 						</div>

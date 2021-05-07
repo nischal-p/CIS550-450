@@ -161,7 +161,72 @@ const getSongFromDB = (req, res) => {
 const getSongBasedOnArtist = (req, res) => {
   const artist_name = req.params.artist_name;
 
-  // TODO: input query 
+  const query = `
+  SELECT s.title, s.spotify_id, a.name, s.explicit
+  FROM Artists a
+  JOIN ArtistsSongs as2
+  ON a.artist_id = as2.artist_id
+  JOIN Songs s
+  ON as2.song_id = s.spotify_id
+  WHERE a.name LIKE '${artist_name}'
+  LIMIT 10`
+
+  console.log("Sent query with " + artist_name)
+  connection.query(query, (err, rows, fields) => {
+    if (err) console.log(err);
+    else {
+      console.log("Got Response:" + JSON.stringify(rows)); 
+
+      // query spotify API for songs
+      var client_id = '8eab0cca59954ff8b78151cbc3b7c2ea';
+      var client_secret = 'a2119aead89a4308876d6385ee0a5263';
+
+      // your application requests authorization from spotify
+      var authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        headers: {
+          Authorization:
+            'Basic ' +
+            new Buffer(client_id + ':' + client_secret).toString('base64')
+        },
+        form: {
+          grant_type: 'client_credentials'
+        },
+        json: true
+      };
+
+      request.post(authOptions, function(error, response, body) {
+        if (!error && response.statusCode === 200) { 
+          
+
+          // instantiate result array
+          var result = []
+          for (var i = 0; i < rows.length; i++) {
+
+            // query spotify api with target id
+            var options = {
+              url: 'https://api.spotify.com/v1/tracks/' + rows[i].spotify_id, 
+              headers : {'Authorization' : 'Bearer ' + body.access_token},
+              json : true
+            }
+
+            // assemble result array to pass to frontend component
+            request.get(options, function(err, response, body) {
+               console.log(body)
+               result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
+               img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
+               link : body['external_urls']['spotify']})
+
+               // pass final result to frontend
+               if (result.length == rows.length) {
+                 res.json(result)
+               }
+            })
+          }
+        }
+      });
+    }
+  })
 
 
 }
