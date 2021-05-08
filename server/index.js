@@ -25,7 +25,7 @@ app.get("/account/:sessionID", routes.getAccountPage);
 //Search Page
 app.get("/search/:song_title", routes.getSongFromDB);
 
-app.get('/search/artist/:artist_name', routes.get_song_based_on_artist)
+app.get("/search/artist/:artist_name", routes.get_song_based_on_artist);
 
 //My Page
 app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
@@ -33,6 +33,32 @@ app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
 //My Page
 app.get("/userDancebilityDistro/:email", routes.getUserDanceabilityDistro);
 
+//My Page
+app.get("/userAcousticnessDistro/:email", routes.getUserAcousticnessDistro);
+
+//My Page
+app.get("/userPopularityDistro/:email", routes.getUserPopularityDistro);
+
+//My Page
+app.get("/userTopArtists/:email", routes.getUserTopArtists);
+
+//My Page
+app.get("/userTopGenres/:email", routes.getUserTopGenres);
+
+//My Page
+app.get("/totalSavedSongs/:email", routes.getUserTotalSavedSongs);
+
+//My Page
+app.get("/userGenreRecommendation/:email", routes.getUserGenreRecommendation);
+
+//My Page
+app.get("/userArtistRecommendation/:email", routes.getUserArtistRecommendation);
+
+//My Page
+app.get("/exactGenreSearch/:keyword", routes.getExactGenreSearch);
+
+//My Page
+app.get("/partialGenreSearch/:keyword", routes.getPartialGenreSearch);
 
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);

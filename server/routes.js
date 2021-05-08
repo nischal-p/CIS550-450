@@ -294,7 +294,7 @@ const getUserDanceabilityDistro = (req, res) => {
     });
 };
 
-// Get the danceibilty distribution of songs in user's saved songs
+// Get the acosticness distribution of songs in user's saved songs
 const getUserAcousticnessDistro = (req, res) => {
     const user_email = req.params.email;
 
@@ -308,6 +308,29 @@ const getUserAcousticnessDistro = (req, res) => {
     `;
 
     console.log("User Dancebility Query with: " + user_email);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+// Get the popularity distribution of songs in user's saved songs
+const getUserPopularityDistro = (req, res) => {
+    const user_email = req.params.email;
+
+    const query = `
+    SELECT count(ss.song_id) AS num_songs, CEIL((s.popularity / 10)) AS popularity_bucket
+    FROM SavedSongs ss 
+    JOIN Songs s ON s.spotify_id = ss.song_id 
+    WHERE ss.email = "${user_email}"
+    GROUP BY popularity_bucket
+    ORDER BY popularity_bucket;
+    `;
+
+    console.log("User Popularity Query with: " + user_email);
     connection.query(query, (err, rows, fields) => {
         if (err) console.log(err);
         else {
@@ -495,6 +518,46 @@ const getUserGenreRecommendation = (req, res) => {
     });
 };
 
+const getExactGenreSearch = (req, res) => {
+    const keyword = req.params.keyword;
+
+    const query = `
+    SELECT g.genre
+    FROM Genres g 
+    WHERE g.genre = "${keyword}";
+    `;
+
+    console.log("Exact Genre Match with: " + keyword);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+const getPartialGenreSearch = (req, res) => {
+    const keyword = req.params.keyword;
+
+    const query = `
+    SELECT g.genre
+    FROM Genres g 
+    WHERE g.genre LIKE "%${keyword}%"
+    ORDER BY g.num_songs DESC
+    LIMIT 20;
+    `;
+
+    console.log("Partial Genre Match with: " + keyword);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
 module.exports = {
     check_login: checkLogin,
     user_signup: userSignup,
@@ -503,10 +566,13 @@ module.exports = {
     getUserMoodDistro: getUserMoodDistro,
     getUserDanceabilityDistro: getUserDanceabilityDistro,
     getUserAcousticnessDistro: getUserAcousticnessDistro,
+    getUserPopularityDistro: getUserPopularityDistro,
     getUserTopArtists: getUserTopArtists,
     getUserTopGenres: getUserTopGenres,
     getUserTotalSavedSongs: getUserTotalSavedSongs,
     getUserArtistRecommendation: getUserArtistRecommendation,
     getUserGenreRecommendation: getUserGenreRecommendation,
     get_song_based_on_artist: getSongBasedOnArtist,
+    getExactGenreSearch: getExactGenreSearch,
+    getPartialGenreSearch: getPartialGenreSearch,
 };
