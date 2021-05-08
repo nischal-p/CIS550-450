@@ -93,9 +93,9 @@ const getAccountPage = (req, res) => {
 };
 
 const getSongFromDB = (req, res) => {
-  const song_name = req.params.song_title;
+    const song_name = req.params.song_title;
 
-  const query = `
+    const query = `
   SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
   FROM Songs s
   JOIN ArtistsSongs a2
@@ -109,74 +109,83 @@ const getSongFromDB = (req, res) => {
   LIMIT 10
   `;
 
-  // query database for song with song_name + attributes
-  console.log("Sent Query with: " + song_name);
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err);
-    else {
-      console.log("Got Response:" + JSON.stringify(rows)); 
+    // query database for song with song_name + attributes
+    console.log("Sent Query with: " + song_name);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log("Got Response:" + JSON.stringify(rows));
 
-      // query spotify API for songs
-      var client_id = '8eab0cca59954ff8b78151cbc3b7c2ea';
-      var client_secret = 'a2119aead89a4308876d6385ee0a5263';
+            // query spotify API for songs
+            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
+            var client_secret = "a2119aead89a4308876d6385ee0a5263";
 
-      // your application requests authorization from spotify
-      var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-          Authorization:
-            'Basic ' +
-            new Buffer(client_id + ':' + client_secret).toString('base64')
-        },
-        form: {
-          grant_type: 'client_credentials'
-        },
-        json: true
-      };
+            // your application requests authorization from spotify
+            var authOptions = {
+                url: "https://accounts.spotify.com/api/token",
+                headers: {
+                    Authorization:
+                        "Basic " +
+                        new Buffer(client_id + ":" + client_secret).toString(
+                            "base64"
+                        ),
+                },
+                form: {
+                    grant_type: "client_credentials",
+                },
+                json: true,
+            };
 
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) { 
-          
+            request.post(authOptions, function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    // instantiate result array
+                    var result = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        // query spotify api with target id
+                        var options = {
+                            url:
+                                "https://api.spotify.com/v1/tracks/" +
+                                rows[i].spotify_id,
+                            headers: {
+                                Authorization: "Bearer " + body.access_token,
+                            },
+                            json: true,
+                        };
 
-          // instantiate result array
-          var result = []
-          for (var i = 0; i < rows.length; i++) {
+                        // assemble result array to pass to frontend component
+                        request.get(options, function (err, response, body) {
+                            console.log(body);
+                            result.push({
+                                artist_name: body["artists"][0]["name"],
+                                song_name: body["name"],
+                                img_src: body["album"]["images"][1]["url"],
+                                duration: body["duration_ms"],
+                                link: body["external_urls"]["spotify"],
+                            });
 
-            // query spotify api with target id
-            var options = {
-              url: 'https://api.spotify.com/v1/tracks/' + rows[i].spotify_id, 
-              headers : {'Authorization' : 'Bearer ' + body.access_token},
-              json : true
-            }
+                            result[result.length - 1]["popularity"] =
+                                rows[result.length - 1]["popularity"];
+                            result[result.length - 1]["danceability"] =
+                                rows[result.length - 1]["danceability"];
+                            result[result.length - 1]["mood"] =
+                                rows[result.length - 1]["mood"];
 
-            // assemble result array to pass to frontend component
-            request.get(options, function(err, response, body) {
-               console.log(body)
-               result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
-               img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
-               link : body['external_urls']['spotify']})
-
-               result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
-               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
-               result[result.length - 1]['mood'] = rows[result.length - 1]['mood']
-
-
-               // pass final result to frontend
-               if (result.length == rows.length) {
-                 res.json(result)
-               }
-            })
-          }
+                            // pass final result to frontend
+                            if (result.length == rows.length) {
+                                res.json(result);
+                            }
+                        });
+                    }
+                }
+            });
         }
-      })
-    }
-  })
-}
+    });
+};
 
 const getSongBasedOnArtist = (req, res) => {
-  const artist_name = req.params.artist_name;
+    const artist_name = req.params.artist_name;
 
-  const query = `
+    const query = `
   SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
   FROM Artists a
   JOIN ArtistsSongs as2
@@ -187,70 +196,79 @@ const getSongBasedOnArtist = (req, res) => {
   ON m.song_id = s.spotify_id
   WHERE a.name LIKE '${artist_name}'
   ORDER BY s.popularity DESC
-  LIMIT 10`
+  LIMIT 10`;
 
-  console.log("Sent query with " + artist_name)
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err);
-    else {
-      console.log("Got Response:" + JSON.stringify(rows)); 
+    console.log("Sent query with " + artist_name);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log("Got Response:" + JSON.stringify(rows));
 
-      // query spotify API for songs
-      var client_id = '8eab0cca59954ff8b78151cbc3b7c2ea';
-      var client_secret = 'a2119aead89a4308876d6385ee0a5263';
+            // query spotify API for songs
+            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
+            var client_secret = "a2119aead89a4308876d6385ee0a5263";
 
-      // your application requests authorization from spotify
-      var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-          Authorization:
-            'Basic ' +
-            new Buffer(client_id + ':' + client_secret).toString('base64')
-        },
-        form: {
-          grant_type: 'client_credentials'
-        },
-        json: true
-      };
+            // your application requests authorization from spotify
+            var authOptions = {
+                url: "https://accounts.spotify.com/api/token",
+                headers: {
+                    Authorization:
+                        "Basic " +
+                        new Buffer(client_id + ":" + client_secret).toString(
+                            "base64"
+                        ),
+                },
+                form: {
+                    grant_type: "client_credentials",
+                },
+                json: true,
+            };
 
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) { 
-          
+            request.post(authOptions, function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    // instantiate result array
+                    var result = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        // query spotify api with target id
+                        var options = {
+                            url:
+                                "https://api.spotify.com/v1/tracks/" +
+                                rows[i].spotify_id,
+                            headers: {
+                                Authorization: "Bearer " + body.access_token,
+                            },
+                            json: true,
+                        };
 
-          // instantiate result array
-          var result = []
-          for (var i = 0; i < rows.length; i++) {
+                        // assemble result array to pass to frontend component
+                        request.get(options, function (err, response, body) {
+                            result.push({
+                                artist_name: body["artists"][0]["name"],
+                                song_name: body["name"],
+                                img_src: body["album"]["images"][1]["url"],
+                                duration: body["duration_ms"],
+                                link: body["external_urls"]["spotify"],
+                            });
 
-            // query spotify api with target id
-            var options = {
-              url: 'https://api.spotify.com/v1/tracks/' + rows[i].spotify_id, 
-              headers : {'Authorization' : 'Bearer ' + body.access_token},
-              json : true
-            }
+                            // add popularity, acousticness, and danceability to the result
+                            result[result.length - 1]["popularity"] =
+                                rows[result.length - 1]["popularity"];
+                            result[result.length - 1]["danceability"] =
+                                rows[result.length - 1]["danceability"];
+                            result[result.length - 1]["mood"] =
+                                rows[result.length - 1]["mood"];
 
-            // assemble result array to pass to frontend component
-            request.get(options, function(err, response, body) {
-               result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
-               img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
-               link : body['external_urls']['spotify']})
-
-               // add popularity, acousticness, and danceability to the result
-               result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
-               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
-               result[result.length - 1]['mood'] = rows[result.length - 1]['mood']
-
-
-               // pass final result to frontend
-               if (result.length == rows.length) {
-                 res.json(result)
-               }
-            })
-          }
+                            // pass final result to frontend
+                            if (result.length == rows.length) {
+                                res.json(result);
+                            }
+                        });
+                    }
+                }
+            });
         }
-      })
-    }
-  })
-}
+    });
+};
 
 const getSongRec = (req, res) => {
     const song_name = req.params.song_title;
@@ -324,10 +342,6 @@ const getSongRec = (req, res) => {
   	AND s.music_key = (SELECT gs.music_key
   						FROM goal_song gs)
   LIMIT 100`;
-
-
-
-
 
     // query database for song with song_name + attributes
     console.log("Sent Query with: " + song_name + ":" + user_email);
@@ -597,7 +611,7 @@ const getUserTopArtists = (req, res) => {
         WHERE ss.email = "${user_email}"
         GROUP BY ats.artist_id
     )
-    SELECT a.name, num_songs
+    SELECT a.name, atsng.num_songs
     FROM artistid_songcount atsng
     JOIN Artists a ON a.artist_id = atsng.artist_id
     ORDER BY num_songs DESC
@@ -896,41 +910,39 @@ const getGenreDancabilityDistro = (req, res) => {
 };
 
 const getDecades = (req, res) => {
-  const query = `
+    const query = `
   SELECT DISTINCT FLOOR(YEAR(release_year) / 10) * 10 as decade
   FROM Songs s
   ORDER BY decade ASC`;
 
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err);
-    else {
-      res.json(rows)
-    }
-  })
-}
-
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            res.json(rows);
+        }
+    });
+};
 
 const getMostPopularGenres = (req, res) => {
-  const query = `
+    const query = `
   SELECT DISTINCT genre, num_songs
   FROM Genres
   ORDER BY num_songs DESC, genre ASC
-  LIMIT 20`
+  LIMIT 20`;
 
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err)
-    else {
-      res.json(rows)
-    }
-  })
-}
-
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            res.json(rows);
+        }
+    });
+};
 
 const getBestSongs = (req, res) => {
-  const genre = req.params.genre;
-  const decade = req.params.decade;
+    const genre = req.params.genre;
+    const decade = req.params.decade;
 
-  const query = `
+    const query = `
   WITH DesiredSongs AS (
     SELECT DISTINCT s.spotify_id, s.title, a.name, ag.genre, s.popularity, s.acousticness, s.danceability
     FROM Songs s
@@ -940,7 +952,9 @@ const getBestSongs = (req, res) => {
     ON as2.artist_id = ag.artist_id
     JOIN Artists a
     ON as2.artist_id = a.artist_id
-    WHERE ag.genre like '${genre}' AND YEAR(s.release_year) >= ${decade} AND YEAR(s.release_year) <= ${parseInt(decade) + 9}
+    WHERE ag.genre like '${genre}' AND YEAR(s.release_year) >= ${decade} AND YEAR(s.release_year) <= ${
+        parseInt(decade) + 9
+    }
   ), SongsInDecade AS (
      SELECT spotify_id, popularity
      FROM Songs s
@@ -968,67 +982,78 @@ const getBestSongs = (req, res) => {
         FROM GenresAveragePopularity
         WHERE popularity <= avg_popularity)
   ORDER BY popularity DESC, title ASC
-  LIMIT 15`
+  LIMIT 15`;
 
-  connection.query(query, (err, rows, fields) => {
-    if (err) console.log(err)
-    else {
-      console.log("Got Response:" + JSON.stringify(rows)); 
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log("Got Response:" + JSON.stringify(rows));
 
-      // query spotify API for songs
-      var client_id = '8eab0cca59954ff8b78151cbc3b7c2ea';
-      var client_secret = 'a2119aead89a4308876d6385ee0a5263';
+            // query spotify API for songs
+            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
+            var client_secret = "a2119aead89a4308876d6385ee0a5263";
 
-      // your application requests authorization from spotify
-      var authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        headers: {
-          Authorization:
-            'Basic ' +
-            new Buffer(client_id + ':' + client_secret).toString('base64')
-        },
-        form: {
-          grant_type: 'client_credentials'
-        },
-        json: true
-      };
+            // your application requests authorization from spotify
+            var authOptions = {
+                url: "https://accounts.spotify.com/api/token",
+                headers: {
+                    Authorization:
+                        "Basic " +
+                        new Buffer(client_id + ":" + client_secret).toString(
+                            "base64"
+                        ),
+                },
+                form: {
+                    grant_type: "client_credentials",
+                },
+                json: true,
+            };
 
-      request.post(authOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) { 
+            request.post(authOptions, function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    // instantiate result array
+                    var result = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        // query spotify api with target id
+                        var options = {
+                            url:
+                                "https://api.spotify.com/v1/tracks/" +
+                                rows[i].spotify_id,
+                            headers: {
+                                Authorization: "Bearer " + body.access_token,
+                            },
+                            json: true,
+                        };
 
-          // instantiate result array
-          var result = []
-          for (var i = 0; i < rows.length; i++) {
+                        // assemble result array to pass to frontend component
+                        request.get(options, function (err, response, body) {
+                            result.push({
+                                artist_name: body["artists"][0]["name"],
+                                song_name: body["name"],
+                                img_src: body["album"]["images"][1]["url"],
+                                duration: body["duration_ms"],
+                                link: body["external_urls"]["spotify"],
+                            });
 
-            // query spotify api with target id
-            var options = {
-              url: 'https://api.spotify.com/v1/tracks/' + rows[i].spotify_id, 
-              headers : {'Authorization' : 'Bearer ' + body.access_token},
-              json : true
-            }
+                            // add popularity to result
+                            result[result.length - 1]["popularity"] =
+                                rows[result.length - 1]["popularity"];
+                            result[result.length - 1]["acousticness"] =
+                                rows[result.length - 1]["acousticness"];
+                            result[result.length - 1]["danceability"] =
+                                rows[result.length - 1]["danceability"];
 
-            // assemble result array to pass to frontend component
-            request.get(options, function(err, response, body) {
-               result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
-               img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
-               link : body['external_urls']['spotify']})
-
-               // add popularity to result
-               result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
-               result[result.length - 1]['acousticness'] = rows[result.length - 1]['acousticness']
-               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
-
-               // pass final result to frontend
-               if (result.length == rows.length) {
-                 res.json(result)
-               }
-            })
-          }
+                            // pass final result to frontend
+                            if (result.length == rows.length) {
+                                res.json(result);
+                            }
+                        });
+                    }
+                }
+            });
         }
-      });
-    }
-  })
-}
+    });
+};
 
 module.exports = {
     check_login: checkLogin,
@@ -1053,7 +1078,7 @@ module.exports = {
     getGenreDancabilityDistro: getGenreDancabilityDistro,
     getSongRec: getSongRec,
     getSongRecBasedOnArtist: getSongRecBasedOnArtist,
-    get_best_songs : getBestSongs,
-    get_decades : getDecades,
-    get_genres : getMostPopularGenres
-}
+    get_best_songs: getBestSongs,
+    get_decades: getDecades,
+    get_genres: getMostPopularGenres,
+};
