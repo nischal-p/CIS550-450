@@ -7,7 +7,8 @@ export default class GenreRecComponent extends React.Component {
         super(props);
 
         this.state = {
-            genreRecommendation: [],
+            recommendationData: [],
+            recommendations: [],
         };
 
         // this.submitDecadeGenre = this.submitDecadeGenre.bind(this);
@@ -35,7 +36,23 @@ export default class GenreRecComponent extends React.Component {
                     rows = Array.from(rows);
                     console.log(rows);
                     this.setState({
-                        artistRecommendation: rows,
+                        recommendationData: rows,
+                    });
+                    const genreRecDivs = rows.map((genreRec, i) => (
+                        <React.Fragment>
+                            <div
+                                className="keyword"
+                                id={"button-" + genreRec["genre"]}
+                                key={"button-" + genreRec["genre"]}
+                            >
+                                <a key={"link-" + genreRec["genre"]} href="#">
+                                    {genreRec["genre"]}
+                                </a>
+                            </div>
+                        </React.Fragment>
+                    ));
+                    this.setState({
+                        recommendations: genreRecDivs,
                     });
                 },
                 (err) => {
@@ -46,7 +63,7 @@ export default class GenreRecComponent extends React.Component {
     }
 
     getGenreRecommendationComponent = () => {
-        if (this.state.genreRecommendation.length === 0) {
+        if (this.state.recommendations.length === 0) {
             return (
                 <span>
                     <img
@@ -56,7 +73,13 @@ export default class GenreRecComponent extends React.Component {
                 </span>
             );
         } else {
-            return <div>Genre recommendations are available</div>;
+            return (
+                <div className="jumbotron">
+                    <div className="keywords-container">
+                        {this.state.recommendations}
+                    </div>
+                </div>
+            );
         }
     };
 
@@ -64,10 +87,10 @@ export default class GenreRecComponent extends React.Component {
         return (
             <>
                 <div>
-                    {" "}
-                    Based on your artists history, we recommend the following
-                    artists:
-                    {this.getArtistRecommendationComponent()}
+                    <h4>Genre Recommendation</h4>
+                    Based on your saved songs, we recommend the following
+                    genres:
+                    {this.getGenreRecommendationComponent()}
                 </div>
             </>
         );

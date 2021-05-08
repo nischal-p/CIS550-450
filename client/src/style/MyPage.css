@@ -7,16 +7,26 @@ body {
     background-color: #f9fbfd;
 }
 
-.h1, .h2, .h3, .h4, h1, h2, h3, h4{
-    margin-bottom: .5rem;
-    font-family: Poppins,sans-serif;
+.h1,
+.h2,
+.h3,
+.h4,
+h1,
+h2,
+h3,
+h4 {
+    margin-bottom: 0.5rem;
+    font-family: Poppins, sans-serif;
     font-weight: 700;
     line-height: 1.3;
 }
 
-.h5, .h6, h5, h6 {
-    margin-bottom: .5rem;
-    font-family: Poppins,sans-serif;
+.h5,
+.h6,
+h5,
+h6 {
+    margin-bottom: 0.5rem;
+    font-family: Poppins, sans-serif;
     font-weight: 600;
     line-height: 1.3;
 }
@@ -25,6 +35,24 @@ hr {
     margin-top: 1rem;
     margin-bottom: 1rem;
     border: 0;
-    border-top: 1px solid rgba(0,0,0,.1);
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+.keywords-container {
+    /* margin: 10px 0; */
+    display: flex;
+    flex-flow: row wrap;
+    justify-content: flex-start;
+    /* border-bottom: 1px solid #ddd; */
+}
+
+.keywords-container .keyword {
+    flex: 1 0 20%;
+    padding: 10px;
+    cursor: pointer;
+    box-sizing: border-box;
+}
+
+.keywords-container .keyword:hover {
+    background-color: #ddd;
+}

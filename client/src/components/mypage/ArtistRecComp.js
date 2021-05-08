@@ -7,7 +7,8 @@ export default class ArtistRecComponent extends React.Component {
         super(props);
 
         this.state = {
-            artistRecommendation: [],
+            recommendationData: [],
+            recommendations: [],
         };
 
         // this.submitDecadeGenre = this.submitDecadeGenre.bind(this);
@@ -35,7 +36,26 @@ export default class ArtistRecComponent extends React.Component {
                     rows = Array.from(rows);
                     console.log(rows);
                     this.setState({
-                        artistRecommendation: rows,
+                        recommendationData: rows,
+                    });
+                    const artistRecDivs = rows.map((artistRec, i) => (
+                        <>
+                            <div
+                                className="keyword"
+                                id={"button-" + artistRec["artist_id"]}
+                                key={"button-" + artistRec["artist_id"]}
+                            >
+                                <a
+                                    key={"link-" + artistRec["artist_id"]}
+                                    href="#"
+                                >
+                                    {artistRec["name"]}
+                                </a>
+                            </div>
+                        </>
+                    ));
+                    this.setState({
+                        recommendations: artistRecDivs,
                     });
                 },
                 (err) => {
@@ -46,7 +66,7 @@ export default class ArtistRecComponent extends React.Component {
     }
 
     getArtistRecommendationComponent = () => {
-        if (this.state.artistRecommendation.length === 0) {
+        if (this.state.recommendations.length === 0) {
             return (
                 <span>
                     <img
@@ -56,7 +76,13 @@ export default class ArtistRecComponent extends React.Component {
                 </span>
             );
         } else {
-            return <div>Artist recommendations are available</div>;
+            return (
+                <div className="jumbotron">
+                    <div className="keywords-container">
+                        {this.state.recommendations}
+                    </div>
+                </div>
+            );
         }
     };
 
@@ -64,7 +90,7 @@ export default class ArtistRecComponent extends React.Component {
         return (
             <>
                 <div>
-                    {" "}
+                    <h4>Artist Recommendation</h4>
                     Based on your saved songs, we recommend the following
                     artists:
                     {this.getArtistRecommendationComponent()}

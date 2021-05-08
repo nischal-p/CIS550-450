@@ -8,6 +8,7 @@ import AcousticnessDistroDiagram from "./AcousticnessDistroDiagram";
 import UserTop10Artists from "./UserTop10Artists";
 import UserTopGenres from "./UserTopGenres";
 import ArtistRecComp from "./ArtistRecComp";
+import GenreRecComp from "./GenreRecComp";
 
 export default class MyPage extends React.Component {
     constructor(props) {
@@ -111,9 +112,11 @@ export default class MyPage extends React.Component {
                     </div>
                     <br />
                     {this.getSelectedDiagram()}
-                    <hr />
 
                     <ArtistRecComp email="aoconnell@pfeffer.com" />
+                    <hr />
+                    <GenreRecComp email="aoconnell@pfeffer.com" />
+                    <hr />
                 </div>
             </div>
         );
