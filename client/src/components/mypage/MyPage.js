@@ -17,7 +17,7 @@ export default class MyPage extends React.Component {
 
         this.state = {
             totalSavedSongs: 0,
-            selectedDiagram: "mood",
+            selectedDiagram: "dance",
             selectedDiagramCode: <div class="jumpotron"></div>,
             email: localStorage.getItem("username"),
         };
@@ -54,10 +54,6 @@ export default class MyPage extends React.Component {
                     console.log(err);
                 }
             );
-
-        this.setState({
-            selectedDiagram: "mood",
-        });
     }
 
     handleDiagramChange = (e) => {

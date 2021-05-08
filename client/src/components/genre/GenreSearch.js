@@ -2,6 +2,10 @@ import React from "react";
 import "../../style/MyPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "../../style/searchPage.css";
+import GenreMoodDistro from "./GenreMoodDistro";
+import GenreDanceDistro from "./GenreDanceDistro";
+import GenreAcousticnessDistro from "./GenreAcousticnessDistro";
+import GenrePopularityDistro from "./GenrePopularityDistro";
 
 export default class GenreSearch extends React.Component {
     constructor(props) {
@@ -12,6 +16,7 @@ export default class GenreSearch extends React.Component {
             searchResults: [],
             exactMatch: true,
             exploreGenre: "",
+            selectedDiagram: "acousticness",
         };
     }
 
@@ -58,7 +63,7 @@ export default class GenreSearch extends React.Component {
                                 id={"button-" + genre["genre"]}
                                 key={"button-" + genre["genre"]}
                                 onClick={() => {
-                                    // copy artist name to clipboard on click
+                                    // being to explore the selected genre
                                     this.setState({
                                         exploreGenre: genre["genre"],
                                     });
@@ -99,8 +104,54 @@ export default class GenreSearch extends React.Component {
         if (this.state.exploreGenre === "") {
             return <div>Search for Genres, click on then and explore!</div>;
         } else {
-            return <div>Actual Stuff is coming in!</div>;
+            return (
+                <div>
+                    <div className="dropdown-container">
+                        <select
+                            value={this.state.selectedDiagram}
+                            onChange={this.handleDiagramChange}
+                            className="dropdown"
+                            id="diagramDropdown"
+                        >
+                            <option value="mood">
+                                Genre Songs Distribution by Mood
+                            </option>
+                            <option value="dance">
+                                Genre Songs Distribution by Danceability
+                            </option>
+                            <option value="acousticness">
+                                Genre Songs Distribution by Acousticness
+                            </option>
+                            <option value="popularity">
+                                Genre Songs Distribution by Popularity
+                            </option>
+                            <option value="artists">Top 10 Artists</option>
+                            <option value="artists">Top 10 Songs</option>
+                        </select>
+                    </div>
+                    <br />
+                    {this.getSelectedDiagram()}
+                </div>
+            );
         }
+    };
+
+    getSelectedDiagram = () => {
+        if (this.state.selectedDiagram === "mood") {
+            return <GenreMoodDistro genre={this.state.exploreGenre} />;
+        } else if (this.state.selectedDiagram === "dance") {
+            return <GenreDanceDistro genre={this.state.exploreGenre} />;
+        } else if (this.state.selectedDiagram === "acousticness") {
+            return <GenreAcousticnessDistro genre={this.state.exploreGenre} />;
+        } else if (this.state.selectedDiagram === "popularity") {
+            return <GenrePopularityDistro genre={this.state.exploreGenre} />;
+        }
+    };
+
+    handleDiagramChange = (e) => {
+        this.setState({
+            selectedDiagram: e.target.value,
+        });
     };
 
     render() {
@@ -129,7 +180,8 @@ export default class GenreSearch extends React.Component {
                 <br />
                 <div className="jumbotron">{this.getGenreBubbles()}</div>
                 <hr />
-                <h4>Explore Genres</h4>
+                <h4>Explore Genres: {this.state.exploreGenre}</h4>
+                <br />
                 {this.showExploreGenre()}
             </div>
         );
