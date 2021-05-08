@@ -32,6 +32,14 @@ app.get("/recommendation/:song_title&:user_email", routes.getSongRec);
 
 app.get("/recommendation/artist/:artist_name", routes.getSongRecBasedOnArtist);
 
+
+// BestSongs Page
+app.get('/decades', routes.get_decades)
+
+app.get('/genres', routes.get_genres)
+
+app.get('/bestsongs/:decade/:genre', routes.get_best_songs)
+
 //My Page
 app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
 

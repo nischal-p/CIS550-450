@@ -1,18 +1,21 @@
-import React from 'react';
+import React from 'react'
 import '../../style/searchResultsRow.css'
+
 import { PieChart, Pie, Tooltip, Cell } from "recharts";
 
 
 
-const SearchResultsRow = ( props ) => {
+
+const BestSongsResultsRow = ( props ) => {
 	const data = [
 		{name : 'popularity' , value : props.popularity},
-		{name : 'danceability', value : Math.ceil(props.danceability * 100)},
-		{name : 'mood', value : Math.ceil(props.mood * 100)}
+		{name : 'acousticness', value : Math.ceil(props.acousticness * 100)},
+		{name : 'danceability', value : Math.ceil(props.danceability * 100)}
 	]
 
 	const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
-	
+
+
 	return (
 		<div>
 			<div className="parent-link">
@@ -52,4 +55,4 @@ const SearchResultsRow = ( props ) => {
 	)
 }
 
-export default SearchResultsRow;
+export default BestSongsResultsRow;

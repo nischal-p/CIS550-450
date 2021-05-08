@@ -6,6 +6,8 @@ import SearchPage from "../components/searchPage/searchPage";
 import MyPage from "../components/mypage/MyPage";
 import GenrePage from "../components/genre/GenrePage";
 import RecommendationsPage from "../components/recommendations/recommendationsPage";
+import ArtistsPage from '../components/artistspage/ArtistsPage'
+import BestSongs from '../components/bestSongs/bestSongs'
 
 export default class App extends React.Component {
     render() {
@@ -41,6 +43,20 @@ export default class App extends React.Component {
                             path="/recommendations"
                             render={() => <RecommendationsPage />}
                         />
+                    </Switch>
+                    <Switch>
+                        <Route
+                                exact
+                                path="/artistspage"
+                                render={() => <ArtistsPage />}
+                            />
+                    </Switch>
+                    <Switch>
+                        <Route
+                                exact
+                                path="/best songs"
+                                render={() => <BestSongs />}
+                            />
                     </Switch>
                 </Router>
             </div>
