@@ -16,7 +16,7 @@ export default class GenreSearch extends React.Component {
             searchResults: [],
             exactMatch: true,
             exploreGenre: "",
-            selectedDiagram: "",
+            selectedDiagram: "--",
             exploreGenreChanged: false,
         };
     }
@@ -118,6 +118,7 @@ export default class GenreSearch extends React.Component {
                             className="dropdown"
                             id="diagramDropdown"
                         >
+                            <option value="---">---</option>
                             <option value="mood">
                                 Genre Songs Distribution by Mood
                             </option>
@@ -146,6 +147,7 @@ export default class GenreSearch extends React.Component {
                             className="dropdown"
                             id="diagramDropdown"
                         >
+                            <option value="--">---</option>
                             <option value="mood">
                                 Genre Songs Distribution by Mood
                             </option>
