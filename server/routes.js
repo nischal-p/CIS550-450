@@ -261,7 +261,7 @@ const getSongRec = (req, res) => {
   	SELECT ss.song_id, s.mood, s.tempo, s.music_key, s.energy
   	FROM SavedSongs ss
   	JOIN Songs s on ss.song_id = s.spotify_id
-  	WHERE s.title = "${song_name}" AND ss.email = "${user_email}"
+  	WHERE s.title = "${song_name}"
   	LIMIT 1
   ),
   saved_songs_similar_artists AS (
@@ -311,7 +311,7 @@ const getSongRec = (req, res) => {
           (SELECT AVG(sssa.avg_energy)
   		FROM saved_songs_similar_artists sssa) + .15)
 
-  SELECT s.title, s.spotify_id, sua.name, s.explicit
+  SELECT DISTINCT s.title, s.spotify_id, sua.name, s.explicit
   FROM Songs s
   JOIN ArtistsSongs ats ON s.spotify_id = ats.song_id
   JOIN similar_unknown_artists sua on ats.artist_id = sua.artist_id
@@ -423,12 +423,11 @@ similar_unknown_artists AS (
         AND
         (SELECT ga.avg_energy
 		FROM goal_artist ga) + .15)
-SELECT s.title, s.spotify_id, sua.name, s.explicit
+SELECT DISTINCT s.title, s.spotify_id, sua.name, s.explicit
 FROM Songs s
 JOIN ArtistsSongs ats ON s.spotify_id = ats.song_id
 JOIN similar_unknown_artists sua on ats.artist_id = sua.artist_id
 WHERE s.popularity > 75
-ORDER BY s.popularity
 LIMIT 100`;
 
     console.log("Sent query with " + artist_name);
