@@ -130,7 +130,7 @@ SELECT * FROM DesiredSongs
 
 -- Actual queries being used ---
 
-/* genre recommendation */
+/* genre recommendation unoptimized*/
 WITH user_saved_songs_genres AS (
 	SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
 	FROM SavedSongs ss
@@ -173,6 +173,47 @@ JOIN songs_per_top_mood_bucket sptmb ON sptmb.mood_bucket = ugmr.mood_bucket
 WHERE ugmr.genre_popularity >= assp.avg_popularity
 ORDER BY num_songs DESC
 LIMIT 10;
+
+/* genre recommendation optimized*/
+WITH user_saved_songs_genres AS (
+        SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
+        FROM SavedSongs ss
+        JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+        JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+        JOIN Songs s ON s.spotify_id = ats.song_id 
+        WHERE ss.email = "${user_email}"
+    ),
+    songs_per_top_mood_bucket AS (
+        SELECT ussg0.mood_bucket, COUNT(ussg0.song_id) AS num_songs
+        FROM user_saved_songs_genres ussg0
+        GROUP BY ussg0.mood_bucket
+        ORDER BY num_songs DESC 
+        LIMIT 2
+    ),
+    average_saved_songs_popularity AS (
+        SELECT AVG(popularity) AS avg_popularity
+        FROM user_saved_songs_genres
+    ),
+    unknown_genres AS (
+        SELECT DISTINCT ag2.genre 
+        FROM ArtistsGenres ag2 
+        WHERE ag2.genre NOT IN (
+            SELECT DISTINCT ussg.genre 
+            FROM user_saved_songs_genres ussg
+        )
+    ),
+    unknown_genre_mood_range AS (
+        SELECT ug.genre, CEIL((g.acousticness) * 10) AS mood_bucket, g.popularity, g.num_songs
+        FROM unknown_genres ug
+        JOIN Genres g ON g.genre = ug.genre
+    )
+    SELECT ugmr.genre, ugmr.mood_bucket, ugmr.popularity
+    FROM unknown_genre_mood_range ugmr
+    JOIN songs_per_top_mood_bucket sptmb ON sptmb.mood_bucket = ugmr.mood_bucket
+    JOIN average_saved_songs_popularity assp
+    WHERE ugmr.popularity >= assp.avg_popularity
+    ORDER BY ugmr.num_songs DESC
+    LIMIT 10;
 
 /* artist recommendation unoptimized (based on artists user hasn't listened to) */
 WITH top_genres AS (
