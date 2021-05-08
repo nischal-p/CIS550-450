@@ -91,7 +91,9 @@ const SearchPage = () => {
 							link={obj.link}
 							artist={obj.artist_name}
 							img={obj.img_src}
-							duration={obj.duration}
+							popularity={obj.popularity}
+                            danceability={obj.danceability}
+                            mood={obj.mood}
 							/>
 						})}
 					</div>

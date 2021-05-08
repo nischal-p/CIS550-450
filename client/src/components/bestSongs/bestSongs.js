@@ -126,7 +126,9 @@ const BestSongs = () => {
 							link={obj.link}
 							artist={obj.artist_name}
 							img={obj.img_src}
-							duration={obj.duration}
+                            popularity={obj.popularity}
+                            acousticness={obj.acousticness}
+                            danceability={obj.danceability}
 							/>
 						})}
 					</div>

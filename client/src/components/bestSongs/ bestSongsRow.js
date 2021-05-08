@@ -1,7 +1,21 @@
 import React from 'react'
 import '../../style/searchResultsRow.css'
 
+import { PieChart, Pie, Tooltip, Cell } from "recharts";
+
+
+
+
 const BestSongsResultsRow = ( props ) => {
+	const data = [
+		{name : 'popularity' , value : props.popularity},
+		{name : 'acousticness', value : Math.ceil(props.acousticness * 100)},
+		{name : 'danceability', value : Math.ceil(props.danceability * 100)}
+	]
+
+	const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+
 	return (
 		<div>
 			<div className="parent-link">
@@ -17,9 +31,24 @@ const BestSongsResultsRow = ( props ) => {
 							{props.artist}
 						</ul>
 					</div>
-					<div className="song-popularity">
-						<span>Hi</span>
-					</div>
+					<PieChart width={200} height={200}>
+						<Pie
+							data={data}
+							cx={100}
+							cy={100}
+							innerRadius={40}
+							outerRadius={60}
+							fill="#8884d8"
+							paddingAngle={5}
+							dataKey="value"
+							isAnimationActive={false}
+						>
+							{data.map((entry, index) => (
+							<Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+							))}
+						</Pie>
+						<Tooltip />
+					</PieChart>
 				</div>
 			</div>
 		</div>

@@ -93,12 +93,14 @@ const getSongFromDB = (req, res) => {
   const song_name = req.params.song_title
 
   const query = `
-  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity
+  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
   FROM Songs s
   JOIN ArtistsSongs a2
   ON s.spotify_id = a2.song_id
   JOIN Artists a
   ON a2.artist_id = a.artist_id
+  JOIN MoodMetrics m
+  ON m.song_id = s.spotify_id
   WHERE s.title LIKE '${song_name}'
   ORDER BY s.popularity DESC
   LIMIT 10
@@ -151,6 +153,11 @@ const getSongFromDB = (req, res) => {
                img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
                link : body['external_urls']['spotify']})
 
+               result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
+               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
+               result[result.length - 1]['mood'] = rows[result.length - 1]['mood']
+
+
                // pass final result to frontend
                if (result.length == rows.length) {
                  res.json(result)
@@ -167,12 +174,14 @@ const getSongBasedOnArtist = (req, res) => {
   const artist_name = req.params.artist_name;
 
   const query = `
-  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity
+  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
   FROM Artists a
   JOIN ArtistsSongs as2
   ON a.artist_id = as2.artist_id
   JOIN Songs s
   ON as2.song_id = s.spotify_id
+  JOIN MoodMetrics m 
+  ON m.song_id = s.spotify_id
   WHERE a.name LIKE '${artist_name}'
   ORDER BY s.popularity DESC
   LIMIT 10`
@@ -221,6 +230,12 @@ const getSongBasedOnArtist = (req, res) => {
                result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
                img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
                link : body['external_urls']['spotify']})
+
+               // add popularity, acousticness, and danceability to the result
+               result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
+               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
+               result[result.length - 1]['mood'] = rows[result.length - 1]['mood']
+
 
                // pass final result to frontend
                if (result.length == rows.length) {
@@ -342,7 +357,7 @@ const getBestSongs = (req, res) => {
 
   const query = `
   WITH DesiredSongs AS (
-    SELECT DISTINCT s.spotify_id, s.title, a.name, ag.genre, s.popularity
+    SELECT DISTINCT s.spotify_id, s.title, a.name, ag.genre, s.popularity, s.acousticness, s.danceability
     FROM Songs s
     JOIN ArtistsSongs as2
     ON s.spotify_id = as2.song_id
@@ -370,7 +385,7 @@ const getBestSongs = (req, res) => {
      JOIN AvgPopularityGenre apg
      ON dsg.genre = apg.genre
   )
-  SELECT spotify_id, title, name, popularity
+  SELECT spotify_id, title, name, popularity, acousticness, danceability
   FROM DesiredSongs
   WHERE spotify_id 
     NOT IN 
@@ -426,6 +441,8 @@ const getBestSongs = (req, res) => {
 
                // add popularity to result
                result[result.length - 1]['popularity'] = rows[result.length - 1]['popularity']
+               result[result.length - 1]['acousticness'] = rows[result.length - 1]['acousticness']
+               result[result.length - 1]['danceability'] = rows[result.length - 1]['danceability']
 
                // pass final result to frontend
                if (result.length == rows.length) {
