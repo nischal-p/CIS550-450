@@ -45,9 +45,7 @@ export default class GenreRecComponent extends React.Component {
                                 id={"button-" + genreRec["genre"]}
                                 key={"button-" + genreRec["genre"]}
                             >
-                                <a key={"link-" + genreRec["genre"]} href="#">
-                                    {genreRec["genre"]}
-                                </a>
+                                {genreRec["genre"]}
                             </div>
                         </React.Fragment>
                     ));

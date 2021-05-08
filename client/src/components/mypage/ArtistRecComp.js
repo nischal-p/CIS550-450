@@ -45,12 +45,7 @@ export default class ArtistRecComponent extends React.Component {
                                 id={"button-" + artistRec["artist_id"]}
                                 key={"button-" + artistRec["artist_id"]}
                             >
-                                <a
-                                    key={"link-" + artistRec["artist_id"]}
-                                    href="#"
-                                >
-                                    {artistRec["name"]}
-                                </a>
+                                {artistRec["name"]}
                             </div>
                         </>
                     ));

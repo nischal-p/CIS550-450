@@ -18,6 +18,7 @@ export default class MyPage extends React.Component {
             totalSavedSongs: 0,
             selectedDiagram: "mood",
             selectedDiagramCode: <div class="jumpotron"></div>,
+            email: localStorage.getItem("username"),
         };
 
         // this.submitDecadeGenre = this.submitDecadeGenre.bind(this);
@@ -25,8 +26,7 @@ export default class MyPage extends React.Component {
 
     /* ---- Runs when MyPage loads ---- */
     componentDidMount() {
-        var user_email = "aoconnell@pfeffer.com";
-        fetch("http://localhost:8081/totalSavedSongs/" + user_email, {
+        fetch("http://localhost:8081/totalSavedSongs/" + this.state.email, {
             method: "GET", // The type of HTTP request.
         })
             .then(
@@ -66,16 +66,17 @@ export default class MyPage extends React.Component {
     };
 
     getSelectedDiagram = () => {
+        var user_email = this.state.email;
         if (this.state.selectedDiagram === "mood") {
-            return <MoodDistroDiagram email="aoconnell@pfeffer.com" />;
+            return <MoodDistroDiagram email={user_email} />;
         } else if (this.state.selectedDiagram === "dance") {
-            return <DanceabilityDistroDiagram email="aoconnell@pfeffer.com" />;
+            return <DanceabilityDistroDiagram email={user_email} />;
         } else if (this.state.selectedDiagram === "acousticness") {
-            return <AcousticnessDistroDiagram email="aoconnell@pfeffer.com" />;
+            return <AcousticnessDistroDiagram email={user_email} />;
         } else if (this.state.selectedDiagram === "artists") {
-            return <UserTop10Artists email="aoconnell@pfeffer.com" />;
+            return <UserTop10Artists email={user_email} />;
         } else if (this.state.selectedDiagram === "genres") {
-            return <UserTopGenres email="aoconnell@pfeffer.com" />;
+            return <UserTopGenres email={user_email} />;
         }
     };
 
@@ -113,9 +114,9 @@ export default class MyPage extends React.Component {
                     <br />
                     {this.getSelectedDiagram()}
 
-                    <ArtistRecComp email="aoconnell@pfeffer.com" />
+                    <ArtistRecComp email={this.state.email} />
                     <hr />
-                    <GenreRecComp email="aoconnell@pfeffer.com" />
+                    <GenreRecComp email={this.state.email} />
                     <hr />
                 </div>
             </div>

@@ -15,7 +15,7 @@ export default class PageNavbar extends React.Component {
             "mypage",
             "search",
             "recommendations",
-            "artists",
+            "genres",
             "best songs",
         ];
 
