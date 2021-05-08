@@ -16,7 +16,8 @@ export default class GenreSearch extends React.Component {
             searchResults: [],
             exactMatch: true,
             exploreGenre: "",
-            selectedDiagram: "acousticness",
+            selectedDiagram: "",
+            exploreGenreChanged: false,
         };
     }
 
@@ -66,6 +67,7 @@ export default class GenreSearch extends React.Component {
                                     // being to explore the selected genre
                                     this.setState({
                                         exploreGenre: genre["genre"],
+                                        exploreGenreChanged: true,
                                     });
                                 }}
                             >
@@ -103,6 +105,37 @@ export default class GenreSearch extends React.Component {
     showExploreGenre = () => {
         if (this.state.exploreGenre === "") {
             return <div>Search for Genres, click on then and explore!</div>;
+        } else if (this.state.exploreGenreChanged) {
+            this.setState({
+                exploreGenreChanged: false,
+            });
+            return (
+                <div>
+                    <div className="dropdown-container">
+                        <select
+                            value={this.state.selectedDiagram}
+                            onChange={this.handleDiagramChange}
+                            className="dropdown"
+                            id="diagramDropdown"
+                        >
+                            <option value="mood">
+                                Genre Songs Distribution by Mood
+                            </option>
+                            <option value="dance">
+                                Genre Songs Distribution by Danceability
+                            </option>
+                            <option value="acousticness">
+                                Genre Songs Distribution by Acousticness
+                            </option>
+                            <option value="popularity">
+                                Genre Songs Distribution by Popularity
+                            </option>
+                            <option value="artists">Top 10 Artists</option>
+                            <option value="artists">Top 10 Songs</option>
+                        </select>
+                    </div>
+                </div>
+            );
         } else {
             return (
                 <div>

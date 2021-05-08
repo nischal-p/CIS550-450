@@ -17,6 +17,7 @@ export default class GenrePopularityDistro extends React.Component {
 
         this.state = {
             distroData: [],
+            genre: this.props.genre,
         };
 
         // this.submitDecadeGenre = this.submitDecadeGenre.bind(this);
@@ -24,7 +25,7 @@ export default class GenrePopularityDistro extends React.Component {
 
     /* ---- Runs when MoodDistroDiagram loads ---- */
     componentDidMount() {
-        var genre = this.props.genre;
+        var genre = this.state.genre;
         fetch("http://localhost:8081/genrePopularityDistro/" + genre, {
             method: "GET", // The type of HTTP request.
         })
