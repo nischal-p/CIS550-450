@@ -635,7 +635,7 @@ const getGenreDancabilityDistro = (req, res) => {
     FROM ArtistsGenres ag 
     JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
     JOIN Songs s ON s.spotify_id = ats.song_id 
-    WHERE ag.genre = "melodic metal"
+    WHERE ag.genre = "${genre}"
     GROUP BY danceability_bucket
     ORDER BY danceability_bucket;
     `;
