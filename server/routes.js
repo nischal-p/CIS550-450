@@ -212,7 +212,6 @@ const getSongBasedOnArtist = (req, res) => {
 
             // assemble result array to pass to frontend component
             request.get(options, function(err, response, body) {
-               console.log(body)
                result.push({artist_name : body['artists'][0]['name'], song_name: body['name'], 
                img_src: body['album']['images'][1]['url'], duration: body['duration_ms'],
                link : body['external_urls']['spotify']})
