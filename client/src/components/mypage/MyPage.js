@@ -2,24 +2,21 @@ import React from "react";
 import PageNavbar from "../pagenavbar/PageNavbar";
 import "../../style/MyPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import {
-    ResponsiveContainer,
-    AreaChart,
-    XAxis,
-    YAxis,
-    Area,
-    Tooltip,
-    CartesianGrid,
-    LineChart,
-    Line,
-} from "recharts";
+import MoodDistroDiagram from "./MoodDistroDiagram";
+import DanceabilityDistroDiagram from "./DancebilityDistroDiagram";
+import AcousticnessDistroDiagram from "./AcousticnessDistroDiagram";
+import UserTop10Artists from "./UserTop10Artists";
+import UserTopGenres from "./UserTopGenres";
+import ArtistRecComp from "./ArtistRecComp";
 
-export default class BestMovies extends React.Component {
+export default class MyPage extends React.Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            moodDistroData: [],
+            totalSavedSongs: 0,
+            selectedDiagram: "mood",
+            selectedDiagramCode: <div class="jumpotron"></div>,
         };
 
         // this.submitDecadeGenre = this.submitDecadeGenre.bind(this);
@@ -28,12 +25,13 @@ export default class BestMovies extends React.Component {
     /* ---- Runs when MyPage loads ---- */
     componentDidMount() {
         var user_email = "aoconnell@pfeffer.com";
-        fetch("http://localhost:8081/userMoodDistro/" + user_email, {
+        fetch("http://localhost:8081/totalSavedSongs/" + user_email, {
             method: "GET", // The type of HTTP request.
         })
             .then(
                 (res) => {
                     // Convert the response data to a JSON.
+                    console.log(res);
                     return res.json();
                 },
                 (err) => {
@@ -43,19 +41,10 @@ export default class BestMovies extends React.Component {
             )
             .then(
                 (rows) => {
-                    rows = Array.from(rows)
+                    rows = Array.from(rows);
                     console.log(rows);
-                    console.log(rows.type)
-                    rows.forEach(element => {
-                        if (element["mood_bucket"] != 0) {
-                            element["xlabel"] = `${element["mood_bucket"] - 1} - ${element["mood_bucket"]}`;
-                        } else {
-                            element["xlabel"] = ""
-                        }
-                        
-                    });
                     this.setState({
-                        moodDistroData: rows,
+                        totalSavedSongs: rows[0]["totalSongs"],
                     });
                 },
                 (err) => {
@@ -63,12 +52,30 @@ export default class BestMovies extends React.Component {
                     console.log(err);
                 }
             );
+
+        this.setState({
+            selectedDiagram: "mood",
+        });
     }
 
-    getBucketLables = (data) => {
-        return data.Array.map((element) => {
-            return `${element["mood_bucket"]} - ${element["mood_bucket"] + 1}`;
+    handleDiagramChange = (e) => {
+        this.setState({
+            selectedDiagram: e.target.value,
         });
+    };
+
+    getSelectedDiagram = () => {
+        if (this.state.selectedDiagram === "mood") {
+            return <MoodDistroDiagram email="aoconnell@pfeffer.com" />;
+        } else if (this.state.selectedDiagram === "dance") {
+            return <DanceabilityDistroDiagram email="aoconnell@pfeffer.com" />;
+        } else if (this.state.selectedDiagram === "acousticness") {
+            return <AcousticnessDistroDiagram email="aoconnell@pfeffer.com" />;
+        } else if (this.state.selectedDiagram === "artists") {
+            return <UserTop10Artists email="aoconnell@pfeffer.com" />;
+        } else if (this.state.selectedDiagram === "genres") {
+            return <UserTopGenres email="aoconnell@pfeffer.com" />;
+        }
     };
 
     render() {
@@ -76,25 +83,37 @@ export default class BestMovies extends React.Component {
             <div className="MyPage">
                 <PageNavbar active="mypage" />
                 <div className="container pt-3">
-                    <h5>Welcome aoconnell@pfeffer.com</h5>
-                    <hr/>
-                    <p>Distribution of Songs per different mood buckets (0 is least happy/upbeat, 10 is most happy/upbeat)</p>
-                    <ResponsiveContainer width="80%" height={400}>
-                        <AreaChart data={this.state.moodDistroData}>
-                        <defs>
-                            <linearGradient id="colorUv" x1="1" y1="1" x2="0" y2="0">
-                                <stop offset="5%" stopColor="#84c8b1" stopOpacity={0.7}/>
-                                <stop offset="95%" stopColor="#8884d8" stopOpacity={0.7}/>
-                            </linearGradient>
-                        </defs>
-                            <Area dataKey="num_songs"  fill="url(#colorUv)"/>
-                            <XAxis type="category" dataKey="xlabel" />
-                            <YAxis dataKey="num_songs" />
-                            <CartesianGrid stroke="#ccc" />
-                            <Tooltip />
-                        </AreaChart>
-                    </ResponsiveContainer>
-                    <hr/>
+                    <h5>Discover saved songs by aoconnell@pfeffer.com</h5>
+                    <p>
+                        You have {this.state.totalSavedSongs} saved songs in
+                        total.
+                    </p>
+                    <hr />
+                    <div className="dropdown-container">
+                        <select
+                            value={this.state.selectedDiagram}
+                            onChange={this.handleDiagramChange}
+                            className="dropdown"
+                            id="diagramDropdown"
+                        >
+                            <option value="mood">
+                                Saved Songs Distribution by Mood
+                            </option>
+                            <option value="dance">
+                                Saved Songs Distribution by Danceability
+                            </option>
+                            <option value="acousticness">
+                                Saved Songs Distribution by Acousticness
+                            </option>
+                            <option value="artists">Top 10 Artists</option>
+                            <option value="genres">Top 10 Genres</option>
+                        </select>
+                    </div>
+                    <br />
+                    {this.getSelectedDiagram()}
+                    <hr />
+
+                    <ArtistRecComp email="aoconnell@pfeffer.com" />
                 </div>
             </div>
         );
