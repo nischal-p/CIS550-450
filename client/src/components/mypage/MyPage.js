@@ -5,6 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import MoodDistroDiagram from "./MoodDistroDiagram";
 import DanceabilityDistroDiagram from "./DancebilityDistroDiagram";
 import AcousticnessDistroDiagram from "./AcousticnessDistroDiagram";
+import PopularityDistroDiagram from "./PopularityDistroDiagram";
 import UserTop10Artists from "./UserTop10Artists";
 import UserTopGenres from "./UserTopGenres";
 import ArtistRecComp from "./ArtistRecComp";
@@ -77,6 +78,8 @@ export default class MyPage extends React.Component {
             return <UserTop10Artists email={user_email} />;
         } else if (this.state.selectedDiagram === "genres") {
             return <UserTopGenres email={user_email} />;
+        } else if (this.state.selectedDiagram === "popularity") {
+            return <PopularityDistroDiagram email={user_email} />;
         }
     };
 
@@ -106,6 +109,9 @@ export default class MyPage extends React.Component {
                             </option>
                             <option value="acousticness">
                                 Saved Songs Distribution by Acousticness
+                            </option>
+                            <option value="popularity">
+                                Saved Songs Distribution by Popularity
                             </option>
                             <option value="artists">Top 10 Artists</option>
                             <option value="genres">Top 10 Genres</option>

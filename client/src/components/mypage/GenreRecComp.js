@@ -44,6 +44,12 @@ export default class GenreRecComponent extends React.Component {
                                 className="keyword"
                                 id={"button-" + genreRec["genre"]}
                                 key={"button-" + genreRec["genre"]}
+                                onClick={() => {
+                                    // copy artist name to clipboard on click
+                                    navigator.clipboard.writeText(
+                                        genreRec["genre"]
+                                    );
+                                }}
                             >
                                 {genreRec["genre"]}
                             </div>

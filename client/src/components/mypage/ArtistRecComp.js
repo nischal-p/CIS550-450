@@ -44,6 +44,12 @@ export default class ArtistRecComponent extends React.Component {
                                 className="keyword"
                                 id={"button-" + artistRec["artist_id"]}
                                 key={"button-" + artistRec["artist_id"]}
+                                onClick={() => {
+                                    // copy artist name to clipboard on click
+                                    navigator.clipboard.writeText(
+                                        artistRec["name"]
+                                    );
+                                }}
                             >
                                 {artistRec["name"]}
                             </div>

@@ -16,7 +16,7 @@ export default class PageNavbar extends React.Component {
             "search",
             "recommendations",
             "genres",
-            "best songs",
+            "bestsongs",
         ];
 
         let navbarDivs = pageList.map((page, i) => {
