@@ -130,7 +130,7 @@ SELECT * FROM DesiredSongs
 
 -- Actual queries being used ---
 
-/* genre recommendation unoptimized*/
+/* genre recommendation unoptimized: 122.734 sec WITHOUT INDEX ON SS EMAIL*/
 WITH user_saved_songs_genres AS (
 	SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
 	FROM SavedSongs ss
@@ -174,7 +174,7 @@ WHERE ugmr.genre_popularity >= assp.avg_popularity
 ORDER BY num_songs DESC
 LIMIT 10;
 
-/* genre recommendation optimized*/
+/* genre recommendation optimized: 0.015 sec WITH INDEX AND AVG GENRE INFO*/
 WITH user_saved_songs_genres AS (
         SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
         FROM SavedSongs ss
@@ -215,7 +215,7 @@ WITH user_saved_songs_genres AS (
     ORDER BY ugmr.num_songs DESC
     LIMIT 10;
 
-/* artist recommendation unoptimized (based on artists user hasn't listened to) */
+/* artist recommendation unoptimized (based on artists user hasn't listened to) 6.359 Sec WITHOUT INDEX ON ss.email */
 WITH top_genres AS (
 	SELECT ag.genre, count(ss.song_id) AS savedsongs_in_genre
 	FROM SavedSongs ss 
@@ -250,7 +250,7 @@ ORDER BY artist_popularity DESC
 LIMIT 20;
 
 
-/* artist recommendation: optimized (based on artists user hasn't listened to) */
+/* artist recommendation: optimized (based on artists user hasn't listened to) 0.375 sec WITH INDEXES AND ArtistTable Averages*/
 WITH savedsongs_genre_artist AS (
 	SELECT ss.song_id, ag.genre, ats.artist_id 
 	FROM SavedSongs ss 
@@ -266,7 +266,7 @@ top_genres AS (
 	LIMIT 20
 ),
 unknown_artists AS (
-	SELECT a.artist_id, a.name
+	SELECT a.artist_id, a.name, a.avg_popularity
 	FROM Artists a
 	WHERE a.artist_id NOT IN (
 		SELECT DISTINCT artist_id 
@@ -274,21 +274,28 @@ unknown_artists AS (
 	)
 ),
 unknown_artists_in_top_genres AS (
-	SELECT uka.artist_id, uka.name
+	SELECT uka.artist_id, uka.name, uka.avg_popularity
 	FROM ArtistsGenres ag2 
 	JOIN top_genres tg ON tg.genre = ag2.genre
 	JOIN unknown_artists uka ON uka.artist_id = ag2.artist_id
 )
-SELECT uatg.artist_id, uatg.name, AVG(s.popularity) AS artist_popularity 
+SELECT DISTINCT uatg.artist_id, uatg.name, uatg.avg_popularity AS artist_popularity 
 FROM unknown_artists_in_top_genres uatg
 JOIN ArtistsSongs ats3 ON ats3.artist_id = uatg.artist_id
-JOIN Songs s ON s.spotify_id = ats3.song_id 
-GROUP BY uatg.artist_id, uatg.name
 ORDER BY artist_popularity DESC 
 LIMIT 20;
 
 
-/* distribution of moods of saved songs */
+/* distribution of moods of saved songs unoptimized: 0.422 sec WITHOUT INDEX ON SS.EMAIL OR S.MOOD*/
+SELECT count(ss.song_id), CEIL((mm.mood * 10)) AS mood_bucket
+FROM SavedSongs ss 
+JOIN Songs s ON s.spotify_id = ss.song_id 
+JOIN MoodMetrics mm ON mm.song_id = ss.song_id 
+WHERE ss.email = "aoconnell@pfeffer.com"
+GROUP BY mood_bucket
+ORDER BY mood_bucket ;
+
+/* distribution of moods of saved songs optimized: 0.110 WITH INDEX ON SS.EMAIL OR S.MOOD*/
 SELECT count(ss.song_id), CEIL((mm.mood * 10)) AS mood_bucket
 FROM SavedSongs ss 
 JOIN Songs s ON s.spotify_id = ss.song_id 
@@ -307,7 +314,7 @@ GROUP BY dancebility_bucket
 ORDER BY dancebility_bucket;
 
 
-/* most listened to artist */
+/* most listened to artist, with metrics unoptimized: 0.454 sec WITHOUT INDEX*/
 WITH artistid_songcount AS (
 	SELECT ats.artist_id , count(ss.song_id) AS num_saved_songs
 	FROM SavedSongs ss 
@@ -315,8 +322,36 @@ WITH artistid_songcount AS (
 	WHERE ss.email = "aoconnell@pfeffer.com"
 	GROUP BY ats.artist_id 
 )
-SELECT a.name, num_saved_songs 
+SELECT a.name, num_saved_songs, a.popularity, a.avg_popularity
 FROM artistid_songcount atsng
 JOIN Artists a ON a.artist_id = atsng.artist_id
-ORDER BY num_saved_songs DESC
+ORDER BY num_saved_songs, a.popularity DESC
 LIMIT 10;
+
+/* most listened to artist, with metrics: 0.156 sec WITH INDEX */
+WITH artistid_songcount AS (
+	SELECT ats.artist_id , count(ss.song_id) AS num_saved_songs
+	FROM SavedSongs ss 
+	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+	WHERE ss.email = "aoconnell@pfeffer.com"
+	GROUP BY ats.artist_id 
+)
+SELECT a.name, num_saved_songs, a.popularity, a.avg_popularity
+FROM artistid_songcount atsng
+JOIN Artists a ON a.artist_id = atsng.artist_id
+ORDER BY num_saved_songs, a.popularity DESC
+LIMIT 10;
+
+/* Danceability metrics for certain music keys of a certain mood threshold grouped by key unoptimized: 0.828 sec WITHOUT INDEX */
+SELECT COUNT(s.spotify_id) as num_songs, MIN(s.danceability) AS min_danceability, 
+	AVG(s.danceability) AS avg_danceability, MAX(s.danceability) AS max_danceability
+FROM Songs as s
+WHERE s.music_key > 3 AND s.mood < .5
+GROUP BY s.music_key;
+
+/* Danceability metrics for certain music keys of a certain mood threshold grouped by key Optimized: 0.266 sec WITH INDEX */
+SELECT COUNT(s.spotify_id) as num_songs, MIN(s.danceability) AS min_danceability, 
+	AVG(s.danceability) AS avg_danceability, MAX(s.danceability) AS max_danceability
+FROM Songs as s
+WHERE s.music_key > 3 AND s.mood < .5
+GROUP BY s.music_key;
