@@ -355,3 +355,42 @@ SELECT COUNT(s.spotify_id) as num_songs, MIN(s.danceability) AS min_danceability
 FROM Songs as s
 WHERE s.music_key > 3 AND s.mood < .5
 GROUP BY s.music_key;
+
+/* Get artists which are similar to the goal artist, but unkown, then return popular songs that are over 75% unoptimated 6.891 sec WITHOUT INDEX*/
+/* Get artists which are similar to the goal artist, but unkown, then return popular songs that are over 75% Optimized 0.047 sec WITH INDEX*/
+WITH goal_artist AS (
+	SELECT a.artist_id, a.avg_tempo, a.avg_energy
+	FROM Artists a
+	WHERE a.name = "Fergie"
+	LIMIT 1
+),
+similar_unknown_artists AS (
+	SELECT a.artist_id, a.name
+	FROM Artists a
+	WHERE a.artist_id NOT IN (
+		SELECT DISTINCT ga.artist_id 
+		FROM goal_artist ga
+	)
+    AND a.avg_tempo BETWEEN 
+		(SELECT ga.avg_tempo 
+		FROM goal_artist ga) - 20 
+        AND 
+        (SELECT ga.avg_tempo 
+		FROM goal_artist ga) + 20
+	AND a.avg_energy BETWEEN 
+		(SELECT ga.avg_energy   
+		FROM goal_artist ga) - .15
+        AND 
+        (SELECT ga.avg_energy
+		FROM goal_artist ga) + .15),
+popular_songs AS (
+	SELECT s.title, s.spotify_id, s.explicit, s.popularity
+    FROM Songs s
+    WHERE s.popularity > 75
+)        
+SELECT ps.title, ps.spotify_id, sua.name, ps.explicit
+FROM popular_songs ps
+JOIN ArtistsSongs ats ON ps.spotify_id = ats.song_id
+JOIN similar_unknown_artists sua on ats.artist_id = sua.artist_id
+ORDER BY ps.popularity
+LIMIT 100; 
