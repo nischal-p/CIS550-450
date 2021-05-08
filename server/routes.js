@@ -258,7 +258,7 @@ const getSongRec = (req, res) => {
   	SELECT ss.song_id, s.mood, s.tempo, s.music_key, s.energy
   	FROM SavedSongs ss
   	JOIN Songs s on ss.song_id = s.spotify_id
-  	WHERE s.title = "${song_name}" AND ss.email = "${user_email}"
+  	WHERE s.title = "${song_name}"
   	LIMIT 1
   ),
   saved_songs_similar_artists AS (
