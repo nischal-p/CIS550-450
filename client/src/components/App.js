@@ -5,6 +5,7 @@ import Signup from "../components/signup/Signup";
 import SearchPage from "../components/searchPage/searchPage";
 import MyPage from "../components/mypage/MyPage";
 import GenrePage from "../components/genre/GenrePage";
+import RecommendationsPage from "../components/recommendations/recommendationsPage";
 
 export default class App extends React.Component {
     render() {
@@ -32,6 +33,13 @@ export default class App extends React.Component {
                             exact
                             path="/genres"
                             render={() => <GenrePage />}
+                        />
+                    </Switch>
+                    <Switch>
+                        <Route
+                            exact
+                            path="/recommendations"
+                            render={() => <RecommendationsPage />}
                         />
                     </Switch>
                 </Router>

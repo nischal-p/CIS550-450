@@ -27,6 +27,11 @@ app.get("/search/:song_title", routes.getSongFromDB);
 
 app.get("/search/artist/:artist_name", routes.get_song_based_on_artist);
 
+//Recommendation Page
+app.get("/recommendation/:song_title&:user_email", routes.getSongRec);
+
+app.get("/recommendation/artist/:artist_name", routes.getSongRecBasedOnArtist);
+
 //My Page
 app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
 

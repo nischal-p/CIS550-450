@@ -249,14 +249,257 @@ const getSongBasedOnArtist = (req, res) => {
     });
 };
 
+const getSongRec = (req, res) => {
+    const song_name = req.params.song_title;
+    const user_email = req.params.user_email;
+
+    const query = `
+  WITH goal_song AS (
+  	SELECT ss.song_id, s.mood, s.tempo, s.music_key, s.energy
+  	FROM SavedSongs ss
+  	JOIN Songs s on ss.song_id = s.spotify_id
+  	WHERE s.title = "${song_name}" AND ss.email = "${user_email}"
+  	LIMIT 1
+  ),
+  saved_songs_similar_artists AS (
+  	SELECT a.artist_id, a.avg_tempo, a.avg_energy as avg_energy
+  	FROM SavedSongs ss
+  	JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
+  	JOIN Songs s on ss.song_id = s.spotify_id
+  	JOIN Artists a on ats.artist_id = a.artist_id
+  	WHERE ss.email = "${user_email}"
+  	AND s.mood BETWEEN
+  		(SELECT gs.mood
+  		FROM goal_song gs) - .15
+          AND
+          (SELECT gs.mood
+  		FROM goal_song gs)+ .15
+  	AND s.tempo BETWEEN
+  		(SELECT gs.tempo
+  		FROM goal_song gs) - 20
+          AND
+          (SELECT gs.tempo
+  		FROM goal_song gs) + 20
+  	AND s.music_key = (SELECT gs.music_key
+  						FROM goal_song gs)
+  	AND s.energy BETWEEN
+  		(SELECT gs.energy
+  		FROM goal_song gs) - .15
+          AND
+          (SELECT gs.energy
+  		FROM goal_song gs)+ .15
+  ), similar_unknown_artists AS (
+  	SELECT a.artist_id, a.name
+  	FROM Artists a
+  	WHERE a.artist_id NOT IN (
+  		SELECT DISTINCT sssa.artist_id
+  		FROM saved_songs_similar_artists sssa
+  	)
+      AND a.avg_tempo BETWEEN
+  		(SELECT AVG(sssa.avg_tempo)
+  		FROM saved_songs_similar_artists sssa) - 20
+          AND
+          (SELECT AVG(sssa.avg_tempo)
+  		FROM saved_songs_similar_artists sssa) + 20
+  	AND a.avg_energy BETWEEN
+  		(SELECT AVG(sssa.avg_energy)
+  		FROM saved_songs_similar_artists sssa) - .15
+          AND
+          (SELECT AVG(sssa.avg_energy)
+  		FROM saved_songs_similar_artists sssa) + .15)
+
+  SELECT s.title, s.spotify_id, sua.name, s.explicit
+  FROM Songs s
+  JOIN ArtistsSongs ats ON s.spotify_id = ats.song_id
+  JOIN similar_unknown_artists sua on ats.artist_id = sua.artist_id
+  WHERE s.mood BETWEEN
+  		(SELECT gs.mood
+  		FROM goal_song gs) - .15
+          AND
+          (SELECT gs.mood
+  		FROM goal_song gs)+ .15
+  	AND s.music_key = (SELECT gs.music_key
+  						FROM goal_song gs)
+  LIMIT 100`;
+
+
+
+
+
+    // query database for song with song_name + attributes
+    console.log("Sent Query with: " + song_name + ":" + user_email);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log("Got Response:" + JSON.stringify(rows));
+
+            // query spotify API for songs
+            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
+            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+
+            // your application requests authorization from spotify
+            var authOptions = {
+                url: "https://accounts.spotify.com/api/token",
+                headers: {
+                    Authorization:
+                        "Basic " +
+                        new Buffer(client_id + ":" + client_secret).toString(
+                            "base64"
+                        ),
+                },
+                form: {
+                    grant_type: "client_credentials",
+                },
+                json: true,
+            };
+
+            request.post(authOptions, function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    // instantiate result array
+                    var result = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        // query spotify api with target id
+                        var options = {
+                            url:
+                                "https://api.spotify.com/v1/tracks/" +
+                                rows[i].spotify_id,
+                            headers: {
+                                Authorization: "Bearer " + body.access_token,
+                            },
+                            json: true,
+                        };
+
+                        // assemble result array to pass to frontend component
+                        request.get(options, function (err, response, body) {
+                            console.log(body);
+                            result.push({
+                                artist_name: body["artists"][0]["name"],
+                                song_name: body["name"],
+                                img_src: body["album"]["images"][1]["url"],
+                                duration: body["duration_ms"],
+                                link: body["external_urls"]["spotify"],
+                            });
+
+                            // pass final result to frontend
+                            if (result.length == rows.length) {
+                                res.json(result);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+};
+
+const getSongRecBasedOnArtist = (req, res) => {
+    const artist_name = req.params.artist_name;
+
+    const query = `WITH goal_artist AS (
+	SELECT a.artist_id, a.avg_tempo, a.avg_energy
+	FROM Artists a
+	WHERE a.name = "${artist_name}"
+	LIMIT 1
+),
+similar_unknown_artists AS (
+	SELECT a.artist_id, a.name
+	FROM Artists a
+	WHERE a.artist_id NOT IN (
+		SELECT DISTINCT ga.artist_id
+		FROM goal_artist ga
+	)
+    AND a.avg_tempo BETWEEN
+		(SELECT ga.avg_tempo
+		FROM goal_artist ga) - 20
+        AND
+        (SELECT ga.avg_tempo
+		FROM goal_artist ga) + 20
+	AND a.avg_energy BETWEEN
+		(SELECT ga.avg_energy
+		FROM goal_artist ga) - .15
+        AND
+        (SELECT ga.avg_energy
+		FROM goal_artist ga) + .15)
+SELECT s.title, s.spotify_id, sua.name, s.explicit
+FROM Songs s
+JOIN ArtistsSongs ats ON s.spotify_id = ats.song_id
+JOIN similar_unknown_artists sua on ats.artist_id = sua.artist_id
+WHERE s.popularity > 75
+ORDER BY s.popularity
+LIMIT 100`;
+
+    console.log("Sent query with " + artist_name);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log("Got Response:" + JSON.stringify(rows));
+
+            // query spotify API for songs
+            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
+            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+
+            // your application requests authorization from spotify
+            var authOptions = {
+                url: "https://accounts.spotify.com/api/token",
+                headers: {
+                    Authorization:
+                        "Basic " +
+                        new Buffer(client_id + ":" + client_secret).toString(
+                            "base64"
+                        ),
+                },
+                form: {
+                    grant_type: "client_credentials",
+                },
+                json: true,
+            };
+
+            request.post(authOptions, function (error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    // instantiate result array
+                    var result = [];
+                    for (var i = 0; i < rows.length; i++) {
+                        // query spotify api with target id
+                        var options = {
+                            url:
+                                "https://api.spotify.com/v1/tracks/" +
+                                rows[i].spotify_id,
+                            headers: {
+                                Authorization: "Bearer " + body.access_token,
+                            },
+                            json: true,
+                        };
+
+                        // assemble result array to pass to frontend component
+                        request.get(options, function (err, response, body) {
+                            result.push({
+                                artist_name: body["artists"][0]["name"],
+                                song_name: body["name"],
+                                img_src: body["album"]["images"][1]["url"],
+                                duration: body["duration_ms"],
+                                link: body["external_urls"]["spotify"],
+                            });
+
+                            // pass final result to frontend
+                            if (result.length == rows.length) {
+                                res.json(result);
+                            }
+                        });
+                    }
+                }
+            });
+        }
+    });
+};
+
 // Get the mood distribution of songs in user's saved songs
 const getUserMoodDistro = (req, res) => {
     const user_email = req.params.email;
 
     const query = `
     SELECT count(ss.song_id) as num_songs, CEIL((s.mood * 10)) AS mood_bucket
-    FROM SavedSongs ss 
-    JOIN Songs s ON s.spotify_id = ss.song_id 
+    FROM SavedSongs ss
+    JOIN Songs s ON s.spotify_id = ss.song_id
     WHERE ss.email = "${user_email}"
     GROUP BY mood_bucket
     ORDER BY mood_bucket ;
@@ -277,8 +520,8 @@ const getUserDanceabilityDistro = (req, res) => {
 
     const query = `
     SELECT count(ss.song_id) as num_songs, CEIL((s.danceability * 10)) AS dancebility_bucket
-    FROM SavedSongs ss 
-    JOIN Songs s ON s.spotify_id = ss.song_id 
+    FROM SavedSongs ss
+    JOIN Songs s ON s.spotify_id = ss.song_id
     WHERE ss.email = "${user_email}"
     GROUP BY dancebility_bucket
     ORDER BY dancebility_bucket ;
@@ -300,8 +543,8 @@ const getUserAcousticnessDistro = (req, res) => {
 
     const query = `
     SELECT count(ss.song_id) as num_songs, CEIL((s.acousticness * 10)) AS acousticness_bucket
-    FROM SavedSongs ss 
-    JOIN Songs s ON s.spotify_id = ss.song_id 
+    FROM SavedSongs ss
+    JOIN Songs s ON s.spotify_id = ss.song_id
     WHERE ss.email = "${user_email}"
     GROUP BY acousticness_bucket
     ORDER BY acousticness_bucket ;
@@ -323,8 +566,8 @@ const getUserPopularityDistro = (req, res) => {
 
     const query = `
     SELECT count(ss.song_id) AS num_songs, CEIL((s.popularity / 10)) AS popularity_bucket
-    FROM SavedSongs ss 
-    JOIN Songs s ON s.spotify_id = ss.song_id 
+    FROM SavedSongs ss
+    JOIN Songs s ON s.spotify_id = ss.song_id
     WHERE ss.email = "${user_email}"
     GROUP BY popularity_bucket
     ORDER BY popularity_bucket;
@@ -347,12 +590,12 @@ const getUserTopArtists = (req, res) => {
     const query = `
     WITH artistid_songcount AS (
         SELECT ats.artist_id , count(ss.song_id) AS num_songs
-        FROM SavedSongs ss 
+        FROM SavedSongs ss
         JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
         WHERE ss.email = "${user_email}"
-        GROUP BY ats.artist_id 
+        GROUP BY ats.artist_id
     )
-    SELECT a.name, num_songs 
+    SELECT a.name, num_songs
     FROM artistid_songcount atsng
     JOIN Artists a ON a.artist_id = atsng.artist_id
     ORDER BY num_songs DESC
@@ -374,12 +617,12 @@ const getUserTopGenres = (req, res) => {
 
     const query = `
     SELECT ag.genre AS text, count(ss.song_id) AS value
-    FROM SavedSongs ss 
+    FROM SavedSongs ss
     JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
-    JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+    JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id
     WHERE ss.email = "${user_email}"
-    GROUP BY ag.genre 
-    ORDER BY value DESC 
+    GROUP BY ag.genre
+    ORDER BY value DESC
     LIMIT 100;
     `;
 
@@ -417,39 +660,39 @@ const getUserArtistRecommendation = (req, res) => {
 
     const query = `
     WITH savedsongs_genre_artist AS (
-        SELECT ss.song_id, ag.genre, ats.artist_id 
-        FROM SavedSongs ss 
+        SELECT ss.song_id, ag.genre, ats.artist_id
+        FROM SavedSongs ss
         JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
-        JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
+        JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id
         WHERE ss.email = "${user_email}"
     ),
     top_genres AS (
         SELECT genre, COUNT(*) AS songs_in_genre
         FROM savedsongs_genre_artist sga
         GROUP BY sga.genre
-        ORDER BY songs_in_genre DESC 
+        ORDER BY songs_in_genre DESC
         LIMIT 20
     ),
     unknown_artists AS (
         SELECT a.artist_id, a.name
         FROM Artists a
         WHERE a.artist_id NOT IN (
-            SELECT DISTINCT artist_id 
+            SELECT DISTINCT artist_id
             FROM savedsongs_genre_artist sga2
         )
     ),
     unknown_artists_in_top_genres AS (
         SELECT uka.artist_id, uka.name
-        FROM ArtistsGenres ag2 
+        FROM ArtistsGenres ag2
         JOIN top_genres tg ON tg.genre = ag2.genre
         JOIN unknown_artists uka ON uka.artist_id = ag2.artist_id
     )
-    SELECT uatg.artist_id, uatg.name, AVG(s.popularity) AS artist_popularity 
+    SELECT uatg.artist_id, uatg.name, AVG(s.popularity) AS artist_popularity
     FROM unknown_artists_in_top_genres uatg
     JOIN ArtistsSongs ats3 ON ats3.artist_id = uatg.artist_id
-    JOIN Songs s ON s.spotify_id = ats3.song_id 
+    JOIN Songs s ON s.spotify_id = ats3.song_id
     GROUP BY uatg.artist_id, uatg.name
-    ORDER BY artist_popularity DESC 
+    ORDER BY artist_popularity DESC
     LIMIT 20;
     `;
 
@@ -468,18 +711,18 @@ const getUserGenreRecommendation = (req, res) => {
 
     const query = `
     WITH user_saved_songs_genres AS (
-        SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity 
+        SELECT ss.song_id, ag.genre, CEIL(s.acousticness * 10) AS mood_bucket, s.popularity
         FROM SavedSongs ss
         JOIN ArtistsSongs ats ON ats.song_id = ss.song_id
-        JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id 
-        JOIN Songs s ON s.spotify_id = ats.song_id 
+        JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id
+        JOIN Songs s ON s.spotify_id = ats.song_id
         WHERE ss.email = "${user_email}"
     ),
     songs_per_top_mood_bucket AS (
         SELECT ussg0.mood_bucket, COUNT(ussg0.song_id) AS num_songs
         FROM user_saved_songs_genres ussg0
         GROUP BY ussg0.mood_bucket
-        ORDER BY num_songs DESC 
+        ORDER BY num_songs DESC
         LIMIT 2
     ),
     average_saved_songs_popularity AS (
@@ -487,10 +730,10 @@ const getUserGenreRecommendation = (req, res) => {
         FROM user_saved_songs_genres
     ),
     unknown_genres AS (
-        SELECT DISTINCT ag2.genre 
-        FROM ArtistsGenres ag2 
+        SELECT DISTINCT ag2.genre
+        FROM ArtistsGenres ag2
         WHERE ag2.genre NOT IN (
-            SELECT DISTINCT ussg.genre 
+            SELECT DISTINCT ussg.genre
             FROM user_saved_songs_genres ussg
         )
     ),
@@ -523,7 +766,7 @@ const getExactGenreSearch = (req, res) => {
 
     const query = `
     SELECT g.genre
-    FROM Genres g 
+    FROM Genres g
     WHERE g.genre = "${keyword}";
     `;
 
@@ -542,7 +785,7 @@ const getPartialGenreSearch = (req, res) => {
 
     const query = `
     SELECT g.genre
-    FROM Genres g 
+    FROM Genres g
     WHERE g.genre LIKE "%${keyword}%"
     ORDER BY g.num_songs DESC
     LIMIT 50;
@@ -563,9 +806,9 @@ const getGenreMoodDistro = (req, res) => {
 
     const query = `
     SELECT count(s.spotify_id) AS num_songs, CEIL((s.mood * 10)) AS mood_bucket
-    FROM ArtistsGenres ag 
-    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
-    JOIN Songs s ON s.spotify_id = ats.song_id 
+    FROM ArtistsGenres ag
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id
+    JOIN Songs s ON s.spotify_id = ats.song_id
     WHERE ag.genre = "${genre}"
     GROUP BY mood_bucket
     ORDER BY mood_bucket;
@@ -586,9 +829,9 @@ const getGenrePopularityDistro = (req, res) => {
 
     const query = `
     SELECT count(s.spotify_id) AS num_songs, CEIL((s.popularity / 10)) AS popularity_bucket
-    FROM ArtistsGenres ag 
-    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
-    JOIN Songs s ON s.spotify_id = ats.song_id 
+    FROM ArtistsGenres ag
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id
+    JOIN Songs s ON s.spotify_id = ats.song_id
     WHERE ag.genre = "${genre}"
     GROUP BY popularity_bucket
     ORDER BY popularity_bucket;
@@ -609,9 +852,9 @@ const getGenreAcousticnessDistro = (req, res) => {
 
     const query = `
     SELECT count(s.spotify_id) AS num_songs, CEIL((s.acousticness * 10)) AS acousticness_bucket
-    FROM ArtistsGenres ag 
-    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
-    JOIN Songs s ON s.spotify_id = ats.song_id 
+    FROM ArtistsGenres ag
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id
+    JOIN Songs s ON s.spotify_id = ats.song_id
     WHERE ag.genre = "${genre}"
     GROUP BY acousticness_bucket
     ORDER BY acousticness_bucket;
@@ -632,9 +875,9 @@ const getGenreDancabilityDistro = (req, res) => {
 
     const query = `
     SELECT count(s.spotify_id) AS num_songs, CEIL((s.danceability * 10)) AS danceability_bucket
-    FROM ArtistsGenres ag 
-    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
-    JOIN Songs s ON s.spotify_id = ats.song_id 
+    FROM ArtistsGenres ag
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id
+    JOIN Songs s ON s.spotify_id = ats.song_id
     WHERE ag.genre = "${genre}"
     GROUP BY danceability_bucket
     ORDER BY danceability_bucket;
@@ -671,4 +914,6 @@ module.exports = {
     getGenrePopularityDistro: getGenrePopularityDistro,
     getGenreAcousticnessDistro: getGenreAcousticnessDistro,
     getGenreDancabilityDistro: getGenreDancabilityDistro,
+    getSongRec: getSongRec,
+    getSongRecBasedOnArtist: getSongRecBasedOnArtist,
 };
