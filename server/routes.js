@@ -545,7 +545,7 @@ const getPartialGenreSearch = (req, res) => {
     FROM Genres g 
     WHERE g.genre LIKE "%${keyword}%"
     ORDER BY g.num_songs DESC
-    LIMIT 20;
+    LIMIT 50;
     `;
 
     console.log("Partial Genre Match with: " + keyword);
