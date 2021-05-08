@@ -60,6 +60,15 @@ app.get("/exactGenreSearch/:keyword", routes.getExactGenreSearch);
 //My Page
 app.get("/partialGenreSearch/:keyword", routes.getPartialGenreSearch);
 
+//My Page
+app.get("/genreMoodDistro/:genre", routes.getGenreMoodDistro);
+
+app.get("/genreAcousticnessDistro/:genre", routes.getGenreAcousticnessDistro);
+
+app.get("/genrePopularityDistro/:genre", routes.getGenrePopularityDistro);
+
+app.get("/genreDanceabilityDistro/:genre", routes.getGenreDancabilityDistro);
+
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);
 });

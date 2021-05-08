@@ -558,6 +558,98 @@ const getPartialGenreSearch = (req, res) => {
     });
 };
 
+const getGenreMoodDistro = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT count(s.spotify_id) AS num_songs, CEIL((s.mood * 10)) AS mood_bucket
+    FROM ArtistsGenres ag 
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
+    JOIN Songs s ON s.spotify_id = ats.song_id 
+    WHERE ag.genre = "${genre}"
+    GROUP BY mood_bucket
+    ORDER BY mood_bucket;
+    `;
+
+    console.log("Genre Mood Distro with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+const getGenrePopularityDistro = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT count(s.spotify_id) AS num_songs, CEIL((s.popularity / 10)) AS popularity_bucket
+    FROM ArtistsGenres ag 
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
+    JOIN Songs s ON s.spotify_id = ats.song_id 
+    WHERE ag.genre = "${genre}"
+    GROUP BY popularity_bucket
+    ORDER BY popularity_bucket;
+    `;
+
+    console.log("Genre Popularity Distro with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+const getGenreAcousticnessDistro = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT count(s.spotify_id) AS num_songs, CEIL((s.acousticness * 10)) AS acousticness_bucket
+    FROM ArtistsGenres ag 
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
+    JOIN Songs s ON s.spotify_id = ats.song_id 
+    WHERE ag.genre = "${genre}"
+    GROUP BY acousticness_bucket
+    ORDER BY acousticness_bucket;
+    `;
+
+    console.log("Genre Acousticness Distro with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+const getGenreDancabilityDistro = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT count(s.spotify_id) AS num_songs, CEIL((s.danceability * 10)) AS danceability_bucket
+    FROM ArtistsGenres ag 
+    JOIN ArtistsSongs ats ON ats.artist_id = ag.artist_id 
+    JOIN Songs s ON s.spotify_id = ats.song_id 
+    WHERE ag.genre = "melodic metal"
+    GROUP BY danceability_bucket
+    ORDER BY danceability_bucket;
+    `;
+
+    console.log("Genre Danceability Distro with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
 module.exports = {
     check_login: checkLogin,
     user_signup: userSignup,
@@ -575,4 +667,8 @@ module.exports = {
     get_song_based_on_artist: getSongBasedOnArtist,
     getExactGenreSearch: getExactGenreSearch,
     getPartialGenreSearch: getPartialGenreSearch,
+    getGenreMoodDistro: getGenreMoodDistro,
+    getGenrePopularityDistro: getGenrePopularityDistro,
+    getGenreAcousticnessDistro: getGenreAcousticnessDistro,
+    getGenreDancabilityDistro: getGenreDancabilityDistro,
 };
