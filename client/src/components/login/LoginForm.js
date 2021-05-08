@@ -49,7 +49,7 @@ const LoginForm = () => {
                 if (responseJson) {
                     localStorage.setItem("username", values.email);
 
-                    history.push("/home");
+                    history.push("/mypage");
                 } else {
                     // TODO: add some error object saying that the password is incorrect
                     history.push("/signup");
