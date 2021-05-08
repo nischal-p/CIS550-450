@@ -279,3 +279,81 @@ FROM artistid_songcount atsng
 JOIN Artists a ON a.artist_id = atsng.artist_id
 ORDER BY num_saved_songs DESC
 LIMIT 10;
+
+
+/* best songs query (unoptimized) */
+WITH DesiredSongs AS (
+	SELECT DISTINCT s.spotify_id, s.title, a.name, ag.genre, s.popularity
+	FROM Songs s
+	JOIN ArtistsSongs as2
+	ON s.spotify_id = as2.song_id
+	JOIN ArtistsGenres ag
+	ON as2.artist_id = ag.artist_id
+	JOIN Artists a
+	ON as2.artist_id = a.artist_id
+	WHERE ag.genre like 'pop' AND YEAR(s.release_year) >= 2000 AND YEAR(s.release_year) <= 2009
+), SongsInDecade AS (
+   SELECT spotify_id, popularity
+   FROM Songs s
+   WHERE YEAR(s.release_year) >= 2000 AND YEAR(s.release_year) <= 2009
+), GenresAveragePopularity AS (
+   SELECT dsg.spotify_id, dsg.genre, dsg.popularity, AVG(s.popularity) AS avg_popularity
+   FROM DesiredSongs dsg
+   JOIN ArtistsGenres ag
+   ON dsg.genre = ag.genre
+   JOIN ArtistsSongs as2 
+   ON ag.artist_id = as2.artist_id
+   JOIN SongsInDecade s
+   ON as2.song_id = s.spotify_id
+   GROUP BY dsg.spotify_id, dsg.genre
+)
+SELECT spotify_id, title, name, popularity
+FROM DesiredSongs
+WHERE spotify_id 
+	NOT IN 
+      (SELECT spotify_id
+      FROM GenresAveragePopularity
+      WHERE popularity <= avg_popularity)
+ORDER BY title ASC
+LIMIT 100
+
+
+/* best songs query (optimized) */
+WITH DesiredSongs AS (
+	SELECT DISTINCT s.spotify_id, s.title, a.name, ag.genre, s.popularity
+	FROM Songs s
+	JOIN ArtistsSongs as2
+	ON s.spotify_id = as2.song_id
+	JOIN ArtistsGenres ag
+	ON as2.artist_id = ag.artist_id
+	JOIN Artists a
+	ON as2.artist_id = a.artist_id
+	WHERE ag.genre like 'pop' AND YEAR(s.release_year) >= 2010 AND YEAR(s.release_year) <= 2019
+), SongsInDecade AS (
+   SELECT spotify_id, popularity
+   FROM Songs s
+   WHERE YEAR(s.release_year) >= 2010 AND YEAR(s.release_year) <= 2019
+), AvgPopularityGenre AS (
+   SELECT ag.genre, AVG(s.popularity) AS avg_popularity
+   FROM ArtistsGenres ag
+   JOIN ArtistsSongs as2 
+   ON ag.artist_id = as2.artist_id
+   JOIN SongsInDecade s
+   ON as2.song_id = s.spotify_id
+   WHERE ag.genre = 'pop'
+   GROUP BY ag.genre
+), GenresAveragePopularity AS (
+   SELECT dsg.spotify_id, dsg.genre, dsg.popularity, apg.avg_popularity
+   FROM DesiredSongs dsg
+   JOIN AvgPopularityGenre apg
+   ON dsg.genre = apg.genre
+)
+SELECT spotify_id, title, name, popularity
+FROM DesiredSongs
+WHERE spotify_id 
+	NOT IN 
+      (SELECT spotify_id
+      FROM GenresAveragePopularity
+      WHERE popularity <= avg_popularity)
+ORDER BY title ASC
+LIMIT 100

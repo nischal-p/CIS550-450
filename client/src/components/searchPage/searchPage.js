@@ -21,7 +21,7 @@ const SearchPage = () => {
     }
 
 	const onCheck = () => {
-		if (artistOrTrack == "Search by Track") {
+		if (artistOrTrack === "Search by Track") {
 			setArtistOrTrack('Search by Artist')
 		} else {
 			setArtistOrTrack('Search by Track')
@@ -32,7 +32,7 @@ const SearchPage = () => {
 		event.preventDefault();
 
 		// check which parameter is selected
-		if (artistOrTrack == "Search by Track") {
+		if (artistOrTrack === "Search by Track") {
 			fetch('http://localhost:8081/search/' + searchParameter, {
 				method : 'get', 
 				headers : {'Content-Type':'application/json'}

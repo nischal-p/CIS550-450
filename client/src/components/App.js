@@ -9,6 +9,7 @@ import Signup from '../components/signup/Signup'
 import SearchPage from '../components/searchPage/searchPage'
 import MyPage from '../components/mypage/MyPage'
 import ArtistsPage from '../components/artistspage/ArtistsPage'
+import BestSongs from '../components/bestSongs/bestSongs'
 
 export default class App extends React.Component {
 
@@ -49,6 +50,13 @@ export default class App extends React.Component {
 							exact
 							path="/artistspage"
 							render={() => <ArtistsPage />}
+						/>
+					</Switch>
+					<Switch>
+						<Route
+							exact
+							path="/best songs"
+							render={() => <BestSongs />}
 						/>
 					</Switch>
 				</Router>
