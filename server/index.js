@@ -23,13 +23,16 @@ app.post("/create_user", routes.user_signup);
 app.get("/account/:sessionID", routes.getAccountPage);
 
 //Search Page
-app.get("/searchPage/:song_title", routes.getSongFromDB);
+app.get("/search/:song_title", routes.getSongFromDB);
 
-//Search Page
+app.get('/search/artist/:artist_name', routes.get_song_based_on_artist)
+
+//My Page
 app.get("/userMoodDistro/:email", routes.getUserMoodDistro);
 
-//Search Page
+//My Page
 app.get("/userDancebilityDistro/:email", routes.getUserDanceabilityDistro);
+
 
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);
