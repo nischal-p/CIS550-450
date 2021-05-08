@@ -8,6 +8,10 @@ const SearchPage = () => {
 
     const [searchParameter, setSearchParameter] = useState('');
 
+	const [mood, setMood] = useState('')
+
+	const [genre, setGenre] = useState('')
+
 	// state for results 
 	const [results, setResults] = useState([])
 
@@ -44,9 +48,8 @@ const SearchPage = () => {
 				headers : {'Content-Type':'application/json'}
 			}).then((response) => response.json())
 			.then(res => {
+				// set internal state
 				setResults(res)
-
-				console.log(res)
 			})
 		}
 
@@ -58,7 +61,6 @@ const SearchPage = () => {
 			<div className="container SearchResults-container">
 				<div>Navbar</div>
 				<div>
-					<h1 class="search-text">Search for your favorite song. </h1>
 					<form className='search-bar' onSubmit={handleSubmit}>
 						<input className="search-input" 
 						placeholder={artistOrTrack} 
