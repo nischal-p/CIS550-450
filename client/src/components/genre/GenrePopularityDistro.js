@@ -3,10 +3,10 @@ import "../../style/MyPage.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import {
     ResponsiveContainer,
-    AreaChart,
+    BarChart,
     XAxis,
     YAxis,
-    Area,
+    Bar,
     Tooltip,
     CartesianGrid,
 } from "recharts";
@@ -74,7 +74,7 @@ export default class GenrePopularityDistro extends React.Component {
 
                 <div className="jumbotron">
                     <ResponsiveContainer width="80%" height={400}>
-                        <AreaChart data={this.state.distroData}>
+                        <BarChart data={this.state.distroData}>
                             <defs>
                                 <linearGradient
                                     id="colorUv"
@@ -95,12 +95,12 @@ export default class GenrePopularityDistro extends React.Component {
                                     />
                                 </linearGradient>
                             </defs>
-                            <Area dataKey="num_songs" fill="url(#colorUv)" />
+                            <Bar dataKey="num_songs" fill="url(#colorUv)" />
                             <XAxis type="category" dataKey="xlabel" />
                             <YAxis dataKey="num_songs" />
                             <CartesianGrid stroke="#ccc" />
                             <Tooltip />
-                        </AreaChart>
+                        </BarChart>
                     </ResponsiveContainer>
                 </div>
                 <hr />
