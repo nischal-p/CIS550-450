@@ -1,7 +1,7 @@
 module.exports = {
-    host: "3.236.236.128",
+    host: "localhost",
     port : "3306",
-    user: "test_remote",
+    user: "root",
     password : "CIS550",
     database : "project_data"
 }

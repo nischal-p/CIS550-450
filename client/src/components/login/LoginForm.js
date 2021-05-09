@@ -39,7 +39,7 @@ const LoginForm = () => {
         setErrors(validate(values));
 
         // fetch content
-        fetch("http://localhost:8081/check_login", {
+        fetch("http://3.236.236.128:8081/check_login", {
             method: "post",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(values),

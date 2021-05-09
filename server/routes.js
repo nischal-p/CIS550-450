@@ -26,6 +26,8 @@ const checkLogin = (req, res) => {
     // query database to check if user already exists
     const query = `SELECT * FROM Users WHERE email = '${username}' AND (password = '${hashed_password}' OR password = '${password}')`;
 
+    //res.header("Access-Control-Allow-Origin", "3.236.236.128:3000");
+
     connection.query(query, (err, rows, fields) => {
         if (err) console.log(err);
         else {
