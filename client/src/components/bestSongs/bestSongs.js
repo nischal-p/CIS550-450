@@ -32,7 +32,7 @@ const BestSongs = () => {
         var decade = selectedOptions.selectedDecade;
         var genre = selectedOptions.selectedGenre;
 
-        fetch('http://localhost:8081/bestsongs/' + decade + '/' + genre, {
+        fetch('http://3.236.236.128:8081/bestsongs/' + decade + '/' + genre, {
             method : 'get',
             headers : {'Content-Type':'application/json'}
         }).then((response) => response.json())
@@ -45,7 +45,7 @@ const BestSongs = () => {
 
     // get decades for dropdown from list
     useEffect(() => {
-        fetch('http://localhost:8081/decades', {
+        fetch('http://3.236.236.128:8081/decades', {
             method : 'get',
             headers : {'Content-Type':'application/json'}
         }).then((response) => response.json())
@@ -69,7 +69,7 @@ const BestSongs = () => {
 
     // get most popular genres from list
     useEffect(() => {
-        fetch('http://localhost:8081/genres', {
+        fetch('http://3.236.236.128:8081/genres', {
             method : 'get',
             headers : {'Content-Type':'application/json'}
         }).then((response) => response.json())

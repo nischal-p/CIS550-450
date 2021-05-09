@@ -26,7 +26,7 @@ export default class UserTop10Artists extends React.Component {
     componentDidMount() {
         var user_email = this.props.email;
 
-        fetch("http://localhost:8081/userTopArtists/" + user_email, {
+        fetch("http://3.236.236.128:8081/userTopArtists/" + user_email, {
             method: "GET", // The type of HTTP request.
         })
             .then(

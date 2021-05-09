@@ -27,8 +27,7 @@ export default class MyPage extends React.Component {
 
     /* ---- Runs when MyPage loads ---- */
     componentDidMount() {
-	console.log("Here");
-        fetch("http://localhost:8081/totalSavedSongs/" + this.state.email, {
+        fetch("http://3.236.236.128:8081/totalSavedSongs/" + this.state.email, {
             method: "GET", // The type of HTTP request.
         })
             .then(
@@ -55,7 +54,6 @@ export default class MyPage extends React.Component {
                     console.log(err);
                 }
             );
-	    console.log("Finished");
     }
 
     handleDiagramChange = (e) => {

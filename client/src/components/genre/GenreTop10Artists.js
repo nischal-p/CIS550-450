@@ -26,7 +26,7 @@ export default class GenreTop10Artists extends React.Component {
     componentDidMount() {
         var genre = this.props.genre;
 
-        fetch("http://localhost:8081/genreTopArtists/" + genre, {
+        fetch("http://3.236.236.128:8081/genreTopArtists/" + genre, {
             method: "GET", // The type of HTTP request.
         })
             .then(

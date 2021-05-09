@@ -17,7 +17,7 @@ export default class GenreRecComponent extends React.Component {
     /* ---- Runs when MoodDistroDiagram loads ---- */
     componentDidMount() {
         var user_email = this.props.email;
-        fetch("http://localhost:8081/userGenreRecommendation/" + user_email, {
+        fetch("http://3.236.236.128:8081/userGenreRecommendation/" + user_email, {
             method: "GET", // The type of HTTP request.
         })
             .then(

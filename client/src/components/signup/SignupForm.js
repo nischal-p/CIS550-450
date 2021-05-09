@@ -51,7 +51,7 @@ const SignupForm = () => {
     setErrors(validate(values));
 
     // fetch (post to database the signup values) 
-    fetch('http://localhost:8081/create_user', {
+    fetch('http://3.236.236.128:8081/create_user', {
       method : 'post',
       headers: {'Content-Type':'application/json'},
       body : JSON.stringify(values)

@@ -26,7 +26,7 @@ export default class GenrePopularityDistro extends React.Component {
     /* ---- Runs when MoodDistroDiagram loads ---- */
     componentDidMount() {
         var genre = this.state.genre;
-        fetch("http://localhost:8081/genrePopularityDistro/" + genre, {
+        fetch("http://3.236.236.128:8081/genrePopularityDistro/" + genre, {
             method: "GET", // The type of HTTP request.
         })
             .then(

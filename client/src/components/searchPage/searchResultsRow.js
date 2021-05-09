@@ -24,7 +24,7 @@ const SearchResultsRow = ( props ) => {
         console.log(props.artist)
 
 		// make post request to database to insert song in saved songs
-		fetch('http://localhost:8081/save_song', {
+		fetch('http://3.236.236.128:8081/save_song', {
 			method : 'post',
 			headers: { "Content-Type": "application/json" },
 			body : JSON.stringify({'song_id' : props.song_id, 'email' : localStorage.getItem('username')})

@@ -35,7 +35,7 @@ const RecommendationsPage = () => {
         // check which parameter is selected
         if (artistOrTrack == "Search by Track") {
             fetch(
-                "http://localhost:8081/recommendation/" +
+                "http://3.236.236.128:8081/recommendation/" +
                     searchParameter +
                     "&" +
                     localStorage.getItem("username"),
@@ -52,7 +52,7 @@ const RecommendationsPage = () => {
                 });
         } else {
             fetch(
-                "http://localhost:8081/recommendation/artist/" +
+                "http://3.236.236.128:8081/recommendation/artist/" +
                     searchParameter,
                 {
                     method: "get",

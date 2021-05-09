@@ -41,7 +41,7 @@ export default class GenreSearch extends React.Component {
         if (!this.state.exactMatch) {
             queryRoute = "partialGenreSearch";
         }
-        fetch(`http://localhost:8081/${queryRoute}/` + this.state.searchbox, {
+        fetch(`http://3.236.236.128:8081/${queryRoute}/` + this.state.searchbox, {
             method: "GET", // The type of HTTP request.
         })
             .then(

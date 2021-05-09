@@ -30,7 +30,7 @@ const SearchPage = () => {
 
         // check which parameter is selected
         if (artistOrTrack === "Search by Track") {
-            fetch("http://localhost:8081/search/" + searchParameter, {
+            fetch("http://3.236.236.128:8081/search/" + searchParameter, {
                 method: "get",
                 headers: { "Content-Type": "application/json" },
             })
@@ -41,7 +41,7 @@ const SearchPage = () => {
                     console.log(res);
                 });
         } else {
-            fetch("http://localhost:8081/search/artist/" + searchParameter, {
+            fetch("http://3.236.236.128:8081/search/artist/" + searchParameter, {
                 method: "get",
                 headers: { "Content-Type": "application/json" },
             })
