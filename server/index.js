@@ -86,6 +86,8 @@ app.get("/genreTopArtists/:genre", routes.getGenreTopArtists);
 
 app.get("/genreTopSongs/:genre", routes.getGenreTopSongs);
 
+app.post('/save_song')
+
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);
 });

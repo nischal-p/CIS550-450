@@ -1104,6 +1104,24 @@ const getBestSongs = (req, res) => {
     });
 };
 
+
+const addSongToSavedSongs = (req, res) => {
+    const song_id = req.body.song_id
+    const username = req.body.email
+
+    const insert_query = `INSERT INTO SavedSongs (email, song_id) VALUES ('${username}', '${song_id}')`;
+
+    connection.query(insert_query, (err, rows, fields) => {
+        if (err) console.log(err)
+        else {
+            console.log(rows)
+
+            res.json(true)
+        }
+    })
+
+}
+
 module.exports = {
     check_login: checkLogin,
     user_signup: userSignup,
@@ -1132,4 +1150,5 @@ module.exports = {
     get_best_songs: getBestSongs,
     get_decades: getDecades,
     get_genres: getMostPopularGenres,
+    add_song_to_saved : addSongToSavedSongs
 };
