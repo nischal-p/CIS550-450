@@ -33,7 +33,9 @@ const SearchResultsRow = ( props ) => {
 			setIsSaved(true)
 
 			if (!res) {
-				setSave("Song Saved")
+				setSave("Song already saved")
+			} else {
+				setSave("Song Saved!")
 			}
 		})
 	}
