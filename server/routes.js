@@ -96,7 +96,7 @@ const getSongFromDB = (req, res) => {
     const song_name = req.params.song_title;
 
     const query = `
-  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
+  SELECT DISTINCT s.title, s.spotify_id, MAX(a.name), s.popularity, s.danceability, m.mood
   FROM Songs s
   JOIN ArtistsSongs a2
   ON s.spotify_id = a2.song_id
@@ -105,6 +105,7 @@ const getSongFromDB = (req, res) => {
   JOIN MoodMetrics m
   ON m.song_id = s.spotify_id
   WHERE s.title LIKE '${song_name}'
+  GROUP BY s.spotify_id
   ORDER BY s.popularity DESC
   LIMIT 10
   `;
@@ -186,7 +187,7 @@ const getSongBasedOnArtist = (req, res) => {
     const artist_name = req.params.artist_name;
 
     const query = `
-  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
+  SELECT DISTINCT s.title, s.spotify_id, MAX(a.name), s.popularity, s.danceability, m.mood
   FROM Artists a
   JOIN ArtistsSongs as2
   ON a.artist_id = as2.artist_id
@@ -195,6 +196,7 @@ const getSongBasedOnArtist = (req, res) => {
   JOIN MoodMetrics m
   ON m.song_id = s.spotify_id
   WHERE a.name LIKE '${artist_name}'
+  GROUP BY s.spotify_id
   ORDER BY s.popularity DESC
   LIMIT 10`;
 
