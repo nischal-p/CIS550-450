@@ -17,7 +17,7 @@ const SearchResultsRow = ( props ) => {
 	const [isSaved, setIsSaved] = useState(props.saved)
 	console.log(props.saved)
 
-	const [error, setError] = useState('')
+	const [save, setSave] = useState('')
 
 	const onPress = () => {
 
@@ -33,7 +33,7 @@ const SearchResultsRow = ( props ) => {
 			setIsSaved(true)
 
 			if (!res) {
-				setError('Song Already Saved')
+				setSave("Song Saved")
 			}
 		})
 	}
@@ -52,9 +52,9 @@ const SearchResultsRow = ( props ) => {
 						<ul aria-label="Artist" class="song-artists">
 							{props.artist}
 						</ul>
-						<button className="add-songs" onClick={onPress} disabled={isSaved}>Save Song</button>
-						<span>{error}</span>
-						
+						{!isSaved ? 
+						<button className="add-songs" onClick={onPress}>Save Song</button> : 
+						<div style={{color : 'green', marginTop: 10}}>{save}</div>}
 					</div>
 					<PieChart width={200} height={200}>
 						<Pie
