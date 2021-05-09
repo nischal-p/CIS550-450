@@ -6,6 +6,8 @@ import GenreMoodDistro from "./GenreMoodDistro";
 import GenreDanceDistro from "./GenreDanceDistro";
 import GenreAcousticnessDistro from "./GenreAcousticnessDistro";
 import GenrePopularityDistro from "./GenrePopularityDistro";
+import GenreTop10Artists from "./GenreTop10Artists";
+import GenreTop10Songs from "./GenreTop10Songs";
 
 export default class GenreSearch extends React.Component {
     constructor(props) {
@@ -132,7 +134,7 @@ export default class GenreSearch extends React.Component {
                                 Genre Songs Distribution by Popularity
                             </option>
                             <option value="artists">Top 10 Artists</option>
-                            <option value="artists">Top 10 Songs</option>
+                            <option value="songs">Top 10 Songs</option>
                         </select>
                     </div>
                 </div>
@@ -161,7 +163,7 @@ export default class GenreSearch extends React.Component {
                                 Genre Songs Distribution by Popularity
                             </option>
                             <option value="artists">Top 10 Artists</option>
-                            <option value="artists">Top 10 Songs</option>
+                            <option value="songs">Top 10 Songs</option>
                         </select>
                     </div>
                     <br />
@@ -180,6 +182,10 @@ export default class GenreSearch extends React.Component {
             return <GenreAcousticnessDistro genre={this.state.exploreGenre} />;
         } else if (this.state.selectedDiagram === "popularity") {
             return <GenrePopularityDistro genre={this.state.exploreGenre} />;
+        } else if (this.state.selectedDiagram === "artists") {
+            return <GenreTop10Artists genre={this.state.exploreGenre} />;
+        } else if (this.state.selectedDiagram === "songs") {
+            return <GenreTop10Songs genre={this.state.exploreGenre} />;
         }
     };
 
