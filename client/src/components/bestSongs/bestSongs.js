@@ -129,18 +129,20 @@ const BestSongs = () => {
 								<span>{bestSongs.length} Tracks</span>
 							</div>
 						</div>
-						{bestSongs.map((obj, idx) => {
-							return <BestSongsRow 
-							key={idx} 
-							title={obj.song_name} 
-							link={obj.link}
-							artist={obj.artist_name}
-							img={obj.img_src}
-                            popularity={obj.popularity}
-                            acousticness={obj.acousticness}
-                            danceability={obj.danceability}
-							/>
-						})}
+                        {bestSongs.length > 0 ?
+                            bestSongs.map((obj, idx) => {
+                                return <BestSongsRow 
+                                key={idx} 
+                                title={obj.song_name} 
+                                link={obj.link}
+                                artist={obj.artist_name}
+                                img={obj.img_src}
+                                popularity={obj.popularity}
+                                acousticness={obj.acousticness}
+                                danceability={obj.danceability}
+                                />
+                            }) : 
+                            <div style={{marginTop : 15}}>No Results</div>}
 					</div>
 			    </div>
 			  </div>
