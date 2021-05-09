@@ -84,7 +84,7 @@ export default class MyPage extends React.Component {
             <div className="MyPage">
                 <PageNavbar active="mypage" />
                 <div className="container pt-3">
-                    <h5>Discover saved songs by aoconnell@pfeffer.com</h5>
+                    <h5>Discover saved songs by {this.state.email}</h5>
                     <p>
                         You have {this.state.totalSavedSongs} saved songs in
                         total.
