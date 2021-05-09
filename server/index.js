@@ -82,6 +82,10 @@ app.get("/genrePopularityDistro/:genre", routes.getGenrePopularityDistro);
 
 app.get("/genreDanceabilityDistro/:genre", routes.getGenreDancabilityDistro);
 
+app.get("/genreTopArtists/:genre", routes.getGenreTopArtists);
+
+app.get("/genreTopSongs/:genre", routes.getGenreTopSongs);
+
 app.listen(8081, () => {
     console.log(`Server listening on PORT 8081`);
 });

@@ -192,7 +192,7 @@ const getSongBasedOnArtist = (req, res) => {
   ON a.artist_id = as2.artist_id
   JOIN Songs s
   ON as2.song_id = s.spotify_id
-  JOIN MoodMetrics m 
+  JOIN MoodMetrics m
   ON m.song_id = s.spotify_id
   WHERE a.name LIKE '${artist_name}'
   ORDER BY s.popularity DESC
@@ -909,6 +909,53 @@ const getGenreDancabilityDistro = (req, res) => {
     });
 };
 
+const getGenreTopArtists = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT a.name, COUNT(ats.song_id) as num_songs
+    FROM ArtistsSongs ats
+    JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id
+    JOIN Artists a ON ats.artist_id = a.artist_id
+    WHERE ag.genre = "${genre}"
+    GROUP BY a.name
+    ORDER BY num_songs DESC
+    LIMIT 10;
+    `;
+
+    console.log("Genre Top Artists Query with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
+const getGenreTopSongs = (req, res) => {
+    const genre = req.params.genre;
+
+    const query = `
+    SELECT s.title, s.popularity
+    FROM ArtistsSongs ats
+    JOIN ArtistsGenres ag ON ag.artist_id = ats.artist_id
+    JOIN Songs s ON ats.song_id = s.spotify_id
+    WHERE ag.genre = "${genre}"
+    ORDER BY s.popularity DESC
+    LIMIT 10;
+    `;
+
+    console.log("Genre Top Songs Query with: " + genre);
+    connection.query(query, (err, rows, fields) => {
+        if (err) console.log(err);
+        else {
+            console.log(rows);
+            res.json(rows);
+        }
+    });
+};
+
 const getDecades = (req, res) => {
     const query = `
   SELECT DISTINCT FLOOR(YEAR(release_year) / 10) * 10 as decade
@@ -962,7 +1009,7 @@ const getBestSongs = (req, res) => {
   ), AvgPopularityGenre AS (
      SELECT ag.genre, AVG(s.popularity) AS avg_popularity
      FROM ArtistsGenres ag
-     JOIN ArtistsSongs as2 
+     JOIN ArtistsSongs as2
      ON ag.artist_id = as2.artist_id
      JOIN SongsInDecade s
      ON as2.song_id = s.spotify_id
@@ -976,8 +1023,8 @@ const getBestSongs = (req, res) => {
   )
   SELECT spotify_id, title, name, popularity, acousticness, danceability
   FROM DesiredSongs
-  WHERE spotify_id 
-    NOT IN 
+  WHERE spotify_id
+    NOT IN
         (SELECT spotify_id
         FROM GenresAveragePopularity
         WHERE popularity <= avg_popularity)
@@ -1078,6 +1125,8 @@ module.exports = {
     getGenreDancabilityDistro: getGenreDancabilityDistro,
     getSongRec: getSongRec,
     getSongRecBasedOnArtist: getSongRecBasedOnArtist,
+    getGenreTopArtists: getGenreTopArtists,
+    getGenreTopSongs : getGenreTopSongs,
     get_best_songs: getBestSongs,
     get_decades: getDecades,
     get_genres: getMostPopularGenres,
