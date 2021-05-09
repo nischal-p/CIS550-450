@@ -7,8 +7,8 @@ import BestSongsRow from './ bestSongsRow'
 
 const BestSongs = () => {
     const [selectedOptions, setSelectedOptions] = useState({
-        selectedDecade : '',
-        selectedGenre : ''
+        selectedDecade : '1900',
+        selectedGenre : 'rock'
     })
 
     const [genres, setGenres] = useState([])
@@ -91,7 +91,7 @@ const BestSongs = () => {
         })
     }, [])
 
-    
+
     return (
         <div className="BestSongs">
 				<PageNavbar active="best songs" />
@@ -101,7 +101,7 @@ const BestSongs = () => {
 						<div className="dropdown-container">
 							<select value={selectedOptions.selectedDecade} onChange={handleDecadeChange} className="dropdown" id="decadesDropdown">
 								{decades.map((decadeObj, index) => {
-                                    return <option 
+                                    return <option
                                     className="decadesOption"
                                     value={decadeObj}
                                     key={index}>
@@ -111,7 +111,7 @@ const BestSongs = () => {
 							</select>
 							<select value={selectedOptions.selectedGenre} onChange={handleGenreChange} className="dropdown" id="genresDropdown">
 								{genres.map((genreObj, index) => {
-                                    return <option 
+                                    return <option
                                     className="genresOption"
                                     value={genreObj}
                                     key={index}>
@@ -131,9 +131,9 @@ const BestSongs = () => {
 						</div>
                         {bestSongs.length > 0 ?
                             bestSongs.map((obj, idx) => {
-                                return <BestSongsRow 
-                                key={idx} 
-                                title={obj.song_name} 
+                                return <BestSongsRow
+                                key={idx}
+                                title={obj.song_name}
                                 link={obj.link}
                                 artist={obj.artist_name}
                                 img={obj.img_src}
@@ -141,7 +141,7 @@ const BestSongs = () => {
                                 acousticness={obj.acousticness}
                                 danceability={obj.danceability}
                                 />
-                            }) : 
+                            }) :
                             <div style={{marginTop : 15}}>No Results</div>}
 					</div>
 			    </div>
