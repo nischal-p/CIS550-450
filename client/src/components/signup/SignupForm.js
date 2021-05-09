@@ -9,7 +9,7 @@ const validate = values => {
     let errors = {};
   
     if (!values.email) {
-      errors.email = 'Email required';
+      errors.email = 'Email not given';
     } else if (!/\S+@\S+\.\S+/.test(values.email)) {
       errors.email = 'Email address is invalid';
     }
@@ -20,7 +20,7 @@ const validate = values => {
     }
   
     if (!values.password2) {
-      errors.password2 = 'Password is required';
+      errors.password2 = 'Confirm Password is required';
     } else if (values.password2 !== values.password) {
       errors.password2 = 'Passwords do not match';
     }
@@ -67,13 +67,12 @@ const SignupForm = () => {
   };
 
   return (
-    <div className='form-content-right'>
+    <div className='content-right'>
       <form onSubmit={handleSubmit} className='form' noValidate>
-        <h1>
-          Get started with us today! Create your account by filling out the
-          information below.
-        </h1>
-        <div className='form-inputs'>
+        <p>
+         Create Account by filling out following information!
+        </p>
+        <div className='inputs'>
           <label className='form-label'>Email</label>
           <input
             className='form-input'
@@ -85,7 +84,7 @@ const SignupForm = () => {
           />
           {errors.email && <p>{errors.email}</p>}
         </div>
-        <div className='form-inputs'>
+        <div className='inputs'>
           <label className='form-label'>Password</label>
           <input
             className='form-input'
@@ -97,7 +96,7 @@ const SignupForm = () => {
           />
           {errors.password && <p>{errors.password}</p>}
         </div>
-        <div className='form-inputs'>
+        <div className='inputs'>
           <label className='form-label'>Confirm Password</label>
           <input
             className='form-input'
@@ -109,10 +108,10 @@ const SignupForm = () => {
           />
           {errors.password2 && <p>{errors.password2}</p>}
         </div>
-        <button className='form-input-btn' type='submit'>
+        <button className='input-btn' type='submit'>
           Sign up
         </button>
-        <span className='form-input-login'>
+        <span className='input-login'>
           Already have an account? Login <a href='/'>here</a>
         </span>
       </form>

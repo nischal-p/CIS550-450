@@ -6,9 +6,9 @@ const validate = (values) => {
     let errors = {};
 
     if (!values.email) {
-        errors.email = "Email required";
+        errors.email = "Email not given";
     } else if (!/\S+@\S+\.\S+/.test(values.email)) {
-        errors.email = "Email address is invalid";
+        errors.email = "Invalid email address";
     }
     if (!values.password) {
         errors.password = "Password is required";
@@ -58,10 +58,10 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="form-content-right">
+        <div className="content-right">
             <form onSubmit={handleSubmit} className="form" noValidate>
-                <h1>Login to your account!</h1>
-                <div className="form-inputs">
+                <p>Login to your account!</p>
+                <div className="inputs">
                     <label className="form-label">Email</label>
                     <input
                         className="form-input"
@@ -73,7 +73,7 @@ const LoginForm = () => {
                     />
                     {errors.email && <p>{errors.email}</p>}
                 </div>
-                <div className="form-inputs">
+                <div className="inputs">
                     <label className="form-label">Password</label>
                     <input
                         className="form-input"
@@ -85,11 +85,11 @@ const LoginForm = () => {
                     />
                     {errors.password && <p>{errors.password}</p>}
                 </div>
-                <button className="form-input-btn" type="submit">
+                <button className="input-btn" type="submit">
                     Sign In
                 </button>
-                <span className="form-input-login">
-                    Don't have an account? Sign Up <a href="/signup">here</a>
+                <span className="input-login">
+                    Sign Up <a href="/signup">here</a> if you don't have an account!
                 </span>
             </form>
         </div>
