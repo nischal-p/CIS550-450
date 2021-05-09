@@ -57,7 +57,12 @@ const BestSongs = () => {
                 result.push(res[i].decade)
             }
 
+            // set decades dropdown
             setDecades(result)
+
+            // set initial state
+            setSelectedOptions({...selectedOptions, selectedDecade : result[0]})
+
         })
     }, [])
 
@@ -77,7 +82,12 @@ const BestSongs = () => {
                 result.push(res[i].genre)
             }
 
+            // set genres
             setGenres(result)
+
+            // set initial state
+            setSelectedOptions({...selectedOptions, selectedGenre : result[0]})
+
         })
     }, [])
 
