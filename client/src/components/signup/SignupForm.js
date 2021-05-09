@@ -10,17 +10,17 @@ const validate = values => {
   
     if (!values.email) {
       errors.email = 'Email not given';
-    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+    } else if (!values.email.match(/\S+@\S+\.\S+/)) {
       errors.email = 'Email address is invalid';
     }
     if (!values.password) {
       errors.password = 'Password is required';
-    } else if (values.password.length < 6) {
-      errors.password = 'Password needs to be 6 characters or more';
+    } else if (values.password.length < 4) {
+      errors.password = 'Password needs to be 4 characters or more';
     }
   
     if (!values.password2) {
-      errors.password2 = 'Confirm Password is required';
+      errors.password2 = 'Write your password again to proceed';
     } else if (values.password2 !== values.password) {
       errors.password2 = 'Passwords do not match';
     }

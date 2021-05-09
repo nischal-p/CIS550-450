@@ -7,7 +7,7 @@ const validate = (values) => {
 
     if (!values.email) {
         errors.email = "Email not given";
-    } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+    } else if (!values.email.match(/\S+@\S+\.\S+/)) {
         errors.email = "Invalid email address";
     }
     if (!values.password) {
