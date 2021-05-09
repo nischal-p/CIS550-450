@@ -20,6 +20,8 @@ const SearchResultsRow = ( props ) => {
 	const [save, setSave] = useState('')
 
 	const onPress = () => {
+        console.log(props.song_id)
+        console.log(props.artist)
 
 		// make post request to database to insert song in saved songs
 		fetch('http://localhost:8081/save_song', {
@@ -39,7 +41,7 @@ const SearchResultsRow = ( props ) => {
 			}
 		})
 	}
-	
+
 	return (
 		<div>
 			<div className="parent-link">
@@ -54,8 +56,8 @@ const SearchResultsRow = ( props ) => {
 						<ul aria-label="Artist" class="song-artists">
 							{props.artist}
 						</ul>
-						{!isSaved ? 
-						<button className="add-songs" onClick={onPress}>Save Song</button> : 
+						{!isSaved ?
+						<button className="add-songs" onClick={onPress}>Save Song</button> :
 						<div style={{color : 'green', marginTop: 10}}>{save}</div>}
 					</div>
 					<PieChart width={200} height={200}>

@@ -155,7 +155,7 @@ const getSongFromDB = (req, res) => {
 
                         // assemble result array to pass to frontend component
                         request.get(options, function (err, response, body) {
-                            console.log(body);
+                            //
                             result.push({
                                 artist_name: body["artists"][0]["name"],
                                 song_name: body["name"],
@@ -163,18 +163,22 @@ const getSongFromDB = (req, res) => {
                                 duration: body["duration_ms"],
                                 link: body["external_urls"]["spotify"],
                             });
-                            
-                            result[result.length - 1]['spotify_id'] = 
-                                rows[result.length - 1]['spotify_id']
-                            result[result.length - 1]["popularity"] =
-                                rows[result.length - 1]["popularity"];
-                            result[result.length - 1]["danceability"] =
-                                rows[result.length - 1]["danceability"];
-                            result[result.length - 1]["mood"] =
-                                rows[result.length - 1]["mood"];
+                            for (var i = 0; i < rows.length; i++) {
+                                if (body["id"] == rows[i].spotify_id) {
+                                    result[result.length - 1]['spotify_id'] =
+                                        rows[i]['spotify_id']
+                                    result[result.length - 1]["popularity"] =
+                                        rows[i]["popularity"];
+                                    result[result.length - 1]["danceability"] =
+                                        rows[i]["danceability"];
+                                    result[result.length - 1]["mood"] =
+                                        rows[i]["mood"];
+                                }
+                            }
 
                             // pass final result to frontend
                             if (result.length == rows.length) {
+                                console.log("Got Response2:" + JSON.stringify(result));
                                 res.json(result);
                             }
                         });
@@ -255,14 +259,18 @@ const getSongBasedOnArtist = (req, res) => {
                             });
 
                             // add popularity, acousticness, and danceability to the result
-                            result[result.length - 1]['spotify_id'] = 
-                                rows[result.length - 1]['spotify_id']
-                            result[result.length - 1]["popularity"] =
-                                rows[result.length - 1]["popularity"];
-                            result[result.length - 1]["danceability"] =
-                                rows[result.length - 1]["danceability"];
-                            result[result.length - 1]["mood"] =
-                                rows[result.length - 1]["mood"];
+                            for (var i = 0; i < rows.length; i++) {
+                                if (body["id"] == rows[i].spotify_id) {
+                                    result[result.length - 1]['spotify_id'] =
+                                        rows[i]['spotify_id']
+                                    result[result.length - 1]["popularity"] =
+                                        rows[i]["popularity"];
+                                    result[result.length - 1]["danceability"] =
+                                        rows[i]["danceability"];
+                                    result[result.length - 1]["mood"] =
+                                        rows[i]["mood"];
+                                }
+                            }
 
                             // pass final result to frontend
                             if (result.length == rows.length) {
