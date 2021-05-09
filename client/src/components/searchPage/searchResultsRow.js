@@ -14,13 +14,28 @@ const SearchResultsRow = ( props ) => {
 
 	const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
-	const [isSaved, setIsSaved] = useState(false)
+	const [isSaved, setIsSaved] = useState(props.saved)
+	console.log(props.saved)
 
-	const onPress = event => {
-		setIsSaved(!isSaved)
+	const [error, setError] = useState('')
 
-		// make post request to database (either insert or delete)
-		
+	const onPress = () => {
+
+		// make post request to database to insert song in saved songs
+		fetch('http://localhost:8081/save_song', {
+			method : 'post',
+			headers: { "Content-Type": "application/json" },
+			body : JSON.stringify({'song_id' : props.song_id, 'email' : localStorage.getItem('username')})
+		}).then((response) => response.json())
+		.then(res => {
+			console.log(res)
+
+			setIsSaved(true)
+
+			if (!res) {
+				setError('Song Already Saved')
+			}
+		})
 	}
 	
 	return (
@@ -38,6 +53,8 @@ const SearchResultsRow = ( props ) => {
 							{props.artist}
 						</ul>
 						<button className="add-songs" onClick={onPress} disabled={isSaved}>Save Song</button>
+						<span>{error}</span>
+						
 					</div>
 					<PieChart width={200} height={200}>
 						<Pie

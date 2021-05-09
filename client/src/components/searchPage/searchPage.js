@@ -21,6 +21,8 @@ const SearchPage = () => {
         } else {
             setArtistOrTrack("Search by Track");
         }
+
+        setResults([])        
     };
 
     const handleSubmit = (event) => {
@@ -91,6 +93,8 @@ const SearchPage = () => {
                                     popularity={obj.popularity}
                                     danceability={obj.danceability}
                                     mood={obj.mood}
+                                    song_id={obj.spotify_id}
+                                    saved={false}
                                 />
                             );
                         })}

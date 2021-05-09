@@ -163,7 +163,9 @@ const getSongFromDB = (req, res) => {
                                 duration: body["duration_ms"],
                                 link: body["external_urls"]["spotify"],
                             });
-
+                            
+                            result[result.length - 1]['spotify_id'] = 
+                                rows[result.length - 1]['spotify_id']
                             result[result.length - 1]["popularity"] =
                                 rows[result.length - 1]["popularity"];
                             result[result.length - 1]["danceability"] =
@@ -253,6 +255,8 @@ const getSongBasedOnArtist = (req, res) => {
                             });
 
                             // add popularity, acousticness, and danceability to the result
+                            result[result.length - 1]['spotify_id'] = 
+                                rows[result.length - 1]['spotify_id']
                             result[result.length - 1]["popularity"] =
                                 rows[result.length - 1]["popularity"];
                             result[result.length - 1]["danceability"] =
@@ -1109,17 +1113,29 @@ const addSongToSavedSongs = (req, res) => {
     const song_id = req.body.song_id
     const username = req.body.email
 
-    const insert_query = `INSERT INTO SavedSongs (email, song_id) VALUES ('${username}', '${song_id}')`;
+    console.log(song_id)
 
-    connection.query(insert_query, (err, rows, fields) => {
-        if (err) console.log(err)
+    const check_query = `SELECT * FROM SavedSongs WHERE song_id = '${song_id}' AND email = '${username}'`
+
+    connection.query(check_query, (err, rows, fields) => {
+        if (err) console.log(err);
         else {
-            console.log(rows)
-
-            res.json(true)
+            if (rows.length > 0) {
+                // send response saying that song is already in saved songs
+                res.json(false)
+            } else {
+                // insert into saved songs'
+                const insert_query = `INSERT INTO SavedSongs (email, song_id) VALUES ('${username}', '${song_id}')`;
+                connection.query(insert_query, (err, rows, fields) => {
+                    if (err) console.log(err)
+                    else {
+                        console.log(rows)
+                        res.json(true)
+                    }
+                })
+            }
         }
     })
-
 }
 
 module.exports = {
