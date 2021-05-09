@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import '../../style/searchResultsRow.css'
 import { PieChart, Pie, Tooltip, Cell } from "recharts";
 
 
 
 const SearchResultsRow = ( props ) => {
+	// grab data for piechart from props
 	const data = [
 		{name : 'popularity' , value : props.popularity},
 		{name : 'danceability', value : Math.ceil(props.danceability * 100)},
@@ -12,6 +13,15 @@ const SearchResultsRow = ( props ) => {
 	]
 
 	const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
+
+	const [isSaved, setIsSaved] = useState(false)
+
+	const onPress = event => {
+		setIsSaved(!isSaved)
+
+		// make post request to database (either insert or delete)
+		
+	}
 	
 	return (
 		<div>
@@ -27,6 +37,7 @@ const SearchResultsRow = ( props ) => {
 						<ul aria-label="Artist" class="song-artists">
 							{props.artist}
 						</ul>
+						<button className="add-songs" onClick={onPress} disabled={isSaved}>Save Song</button>
 					</div>
 					<PieChart width={200} height={200}>
 						<Pie

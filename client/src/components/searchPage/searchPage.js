@@ -8,10 +8,6 @@ const SearchPage = () => {
 
     const [searchParameter, setSearchParameter] = useState("");
 
-    const [mood, setMood] = useState("");
-
-    const [genre, setGenre] = useState("");
-
     // state for results
     const [results, setResults] = useState([]);
 

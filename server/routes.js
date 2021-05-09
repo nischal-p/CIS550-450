@@ -95,18 +95,18 @@ const getAccountPage = (req, res) => {
 const getSongFromDB = (req, res) => {
     const song_name = req.params.song_title;
 
-    const query = `
-  SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
-  FROM Songs s
-  JOIN ArtistsSongs a2
-  ON s.spotify_id = a2.song_id
-  JOIN Artists a
-  ON a2.artist_id = a.artist_id
-  JOIN MoodMetrics m
-  ON m.song_id = s.spotify_id
-  WHERE s.title LIKE '${song_name}'
-  ORDER BY s.popularity DESC
-  LIMIT 10
+  const query = `
+    SELECT DISTINCT s.title, s.spotify_id, a.name, s.popularity, s.danceability, m.mood
+    FROM Songs s
+    JOIN ArtistsSongs a2
+    ON s.spotify_id = a2.song_id
+    JOIN Artists a
+    ON a2.artist_id = a.artist_id
+    JOIN MoodMetrics m
+    ON m.song_id = s.spotify_id
+    WHERE s.title LIKE '${song_name}'
+    ORDER BY s.popularity DESC
+    LIMIT 10
   `;
 
     // query database for song with song_name + attributes
@@ -1102,6 +1102,24 @@ const getBestSongs = (req, res) => {
     });
 };
 
+
+const addSongToSavedSongs = (req, res) => {
+    const song_id = req.body.song_id
+    const username = req.body.email
+
+    const insert_query = `INSERT INTO SavedSongs (email, song_id) VALUES ('${username}', '${song_id}')`;
+
+    connection.query(insert_query, (err, rows, fields) => {
+        if (err) console.log(err)
+        else {
+            console.log(rows)
+
+            res.json(true)
+        }
+    })
+
+}
+
 module.exports = {
     check_login: checkLogin,
     user_signup: userSignup,
@@ -1130,4 +1148,5 @@ module.exports = {
     get_best_songs: getBestSongs,
     get_decades: getDecades,
     get_genres: getMostPopularGenres,
+    add_song_to_saved : addSongToSavedSongs
 };
