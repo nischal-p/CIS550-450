@@ -22,7 +22,7 @@ const SearchPage = () => {
             setArtistOrTrack("Search by Track");
         }
 
-        setResults([])        
+        setResults([])
     };
 
     const handleSubmit = (event) => {
@@ -83,6 +83,9 @@ const SearchPage = () => {
                             </div>
                         </div>
                         {results.map((obj, idx) => {
+                            console.log("Passing:")
+                            console.log(obj.spotify_id)
+                            console.log(obj.artist_name)
                             return (
                                 <SearchResultsRow
                                     key={idx}
