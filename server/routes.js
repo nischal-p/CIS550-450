@@ -118,8 +118,8 @@ const getSongFromDB = (req, res) => {
             console.log("Got Response:" + JSON.stringify(rows));
 
             // query spotify API for songs
-            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
-            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+            var client_id = "<spotify client id>";
+            var client_secret = "<spotify client secret>";
 
             // your application requests authorization from spotify
             var authOptions = {
@@ -213,8 +213,8 @@ const getSongBasedOnArtist = (req, res) => {
             console.log("Got Response:" + JSON.stringify(rows));
 
             // query spotify API for songs
-            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
-            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+            var client_id = "<spotify client id>";
+            var client_secret = "<spotify client secret>";
 
             // your application requests authorization from spotify
             var authOptions = {
@@ -365,8 +365,8 @@ const getSongRec = (req, res) => {
             console.log("Got Response:" + JSON.stringify(rows));
 
             // query spotify API for songs
-            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
-            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+            var client_id = "<spotify client id>";
+            var client_secret = "<spotify client secret>";
 
             // your application requests authorization from spotify
             var authOptions = {
@@ -465,8 +465,8 @@ LIMIT 100`;
             console.log("Got Response:" + JSON.stringify(rows));
 
             // query spotify API for songs
-            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
-            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+            var client_id = "<spotify client id>";
+            var client_secret = "<spotify client secret>";
 
             // your application requests authorization from spotify
             var authOptions = {
@@ -1051,8 +1051,8 @@ const getBestSongs = (req, res) => {
             console.log("Got Response:" + JSON.stringify(rows));
 
             // query spotify API for songs
-            var client_id = "8eab0cca59954ff8b78151cbc3b7c2ea";
-            var client_secret = "a2119aead89a4308876d6385ee0a5263";
+            var client_id = "<spotify client id>";
+            var client_secret = "<spotify client secret>";
 
             // your application requests authorization from spotify
             var authOptions = {
