@@ -1,7 +1,7 @@
 # Recommendify
 
 A platform to explore and discover new songs, artists and genres.
-Demo: https://bit.ly/3srSQHv
+(Demo)[https://drive.google.com/file/d/1l4L8d0-qyJDTtp8Ju0CpKWwPxeCuHT6k/view?fbclid=IwAR3mKfbgyJ1jsq2v9SvsDpFYNh4GQNwov6Ik0OgbSnOBa7HkJepIEPBtfIo]
 
 ### Login Tab
 
